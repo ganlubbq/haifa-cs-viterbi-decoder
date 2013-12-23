@@ -48,12 +48,25 @@ public:
 		}
 	}
 
-	void Encode(vector<bool> data) 
+	vector<bool> Encode(vector<bool> data) 
 	{
+		vector<bool> result;
+		result.resize(sizeof(data)*outputBits);
+
 		for (int i = 0; i < sizeof(data); i++)
 		{
-
+			ShiftRight(data[i]);
+			bool temp;
+			for (int j = 0; j < outputBits; j++)
+			{
+				for (int bit = 0; bit < inputBits * registersCount; bit++)
+				{
+					if (polynomials[i][bit]) temp = temp ^ memoryRegisters[i][bit];
+				}
+				result[i+j] = temp;
+			}
 		}
+		return result;
 	}
 
 	void GenerateAutomata()
