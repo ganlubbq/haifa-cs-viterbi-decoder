@@ -142,7 +142,7 @@ public:
 			{
 				// for each input bit possible create new state with output
 				state tempState;
-				tempState.state = (newState >> inputBits) | (j << constrainLength - 1);
+				tempState.state = (newState >> inputBits) | (j << constrainLength - inputBits);
 				tempState.output = CalcOutput(tempState.state);
 				tempVector.push_back(tempState);
 			}
@@ -170,6 +170,7 @@ public:
 		}
 		cout << "\n";
 	}
+
 	void Send(char* data)
 	{
 		// First encode the data
@@ -181,9 +182,12 @@ public:
 	void Scramble()
 	{
 		scrambledData = encodedData;
-		for (int i = 0; i < outputBits; i++)
+		srand(time(NULL));
+		for (int i = 0; i < outputBits; i = i + rand() % scrambledData.size())
 		{
-			//scrambledData[rand() % scrambledData.size()].flip();
+			bitset<32> block = bitset<32>(scrambledData[i]);
+			block[rand() % outputBits].flip();
+			scrambledData[i] = block.to_ullong();
 		}
 		cout << "Scarmbled Data:\n";
 		for (int i = 0; i < scrambledData.size(); i++)
