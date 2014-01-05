@@ -56,7 +56,7 @@ public:
 		char *dataPtr = data;
 
 		// Move over char input with jumps of size inputbits
-		for (int i = 0; i < strlen(data); i = i + inputBits)
+		for (uint16_t i = 0; i < strlen(data); i = i + inputBits)
 		{
 			// Take the next Block to encode with size of InputBits
 			char* block = new char[inputBits]();
@@ -74,7 +74,7 @@ public:
 
 		// Print out the encoded data in blocks (each for one input symbol)
 		cout << "Encoded Data:\n";
-		for (int i = 0; i < encodedData.size(); i++)
+		for (uint16_t i = 0; i < encodedData.size(); i++)
 		{
 			PrintBitSet(encodedData[i], constrainLength);
 		}
@@ -85,7 +85,7 @@ public:
 	{
 		// Each time shift right by 1 bit and put the next input bit on left (reading wise)
 		// We always use bitset of 32 (assumed to be max of constrain length) but we only refer to constrain length
-		memoryRegisters = (memoryRegisters >> 1) | (input << constrainLength - 1);
+		memoryRegisters = (memoryRegisters >> 1) | (input << (constrainLength - 1));
 	}
 
 	uint32_t CalcOutput(uint32_t input)
@@ -116,7 +116,7 @@ public:
 			}
 
 			// Put the result in output in consistent order (left to right)
-			output = (output << 1) | currXOR;
+			output = (output << 1) | (int)currXOR;
 		}
 		return output;
 	}
@@ -142,7 +142,7 @@ public:
 			{
 				// for each input bit possible create new state with output
 				state tempState;
-				tempState.state = (newState >> inputBits) | (j << constrainLength - inputBits);
+				tempState.state = (newState >> inputBits) | (j << (constrainLength - inputBits));
 				tempState.output = CalcOutput(tempState.state);
 				tempVector.push_back(tempState);
 			}
@@ -157,7 +157,7 @@ public:
 		{
 			PrintBitSet(bitset<32>(iter->first), constrainLength);
 			cout << " -> \t";
-			for (int input = 0; input < iter->second.size(); input++)
+			for (uint16_t input = 0; input < iter->second.size(); input++)
 			{
 				PrintBitSet(bitset<32>(input), inputBits);
 				cout << ": ";
@@ -190,7 +190,7 @@ public:
 			scrambledData[i] = block.to_ullong();
 		}
 		cout << "Scarmbled Data:\n";
-		for (int i = 0; i < scrambledData.size(); i++)
+		for (uint16_t i = 0; i < scrambledData.size(); i++)
 		{
 			PrintBitSet(scrambledData[i], constrainLength);
 		}
@@ -206,7 +206,7 @@ public:
 int main() 
 {
 	cout << "Create Viterbi Module\n";
-	Viterbi viterbiTester = Viterbi(3, 2, 3, 0);
+	Viterbi viterbiTester = Viterbi(3, 1, 3, 0);
 
 	char *input = "011011";
 	cout << "Input Data:\n" << input << "\n";
