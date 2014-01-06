@@ -12,6 +12,7 @@ public:
 	~decoder(void);
 	decoder(map<uint32_t, vector<state>> automata);
 
+	uint32_t FindMinState(map<uint32_t, uint32_t> states);
 	void DecodeSequential(vector<uint32_t> bus);
 	void DecodeParallel();
 };

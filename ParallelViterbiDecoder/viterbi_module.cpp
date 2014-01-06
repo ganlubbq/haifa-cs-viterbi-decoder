@@ -23,6 +23,11 @@ viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount
 	{
 		uint32_t numOfBits = pow(2, _constrainLength);
 		_xors[i] = rand() % numOfBits;
+
+		if (_xors[i] == 0) 
+		{
+			cout << "ERROR: Random XOR is 0!\n";
+		}
 	}
 
 	_encoder = encoder(_inputBits, _outputBits, _constrainLength, _xors);
