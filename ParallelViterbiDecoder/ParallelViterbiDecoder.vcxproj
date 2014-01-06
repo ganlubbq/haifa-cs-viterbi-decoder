@@ -78,7 +78,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="automata.cpp" />
+    <ClCompile Include="decoder.cpp" />
+    <ClCompile Include="encoder.cpp" />
+    <ClCompile Include="helper_functions.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="viterbi_module.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="automata.h" />
+    <ClInclude Include="decoder.h" />
+    <ClInclude Include="encoder.h" />
+    <ClInclude Include="helper_functions.h" />
+    <ClInclude Include="viterbi_module.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
