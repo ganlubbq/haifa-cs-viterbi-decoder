@@ -10,33 +10,81 @@ decoder::~decoder(void)
 {
 }
 
-void decoder::DecodeSequential()
-{/*
-	// Decode data from bus == scrambledData
-	vector<trellis> currStates;
-	vector<trellis> nextStates;
-	for (uint32_t j = 0; j < automata[0].size(); j++)
-	{
-		trellis temp;
-		temp.state = automata[0][j].state;
-		temp.hammingDist = CalcHammingDist(scrambledData[0], automata[0][j].output);
-		nextStates.push_back(temp);
-	}
+decoder::decoder(map<uint32_t, vector<state>> automata)
+{
+	_automata = automata;
+}
 
-	for (uint32_t i = 0; i < scrambledData.size(); i++)
+bool Contains(vector<trellis> vect, uint32_t key)
+{
+	for (int i = 0; i < vect.size(); i++)
 	{
-		for (uint32_t j = 0; j < nextStates.size(); j++)
+		if (vect[i].state == key)
+			return true;
+	}
+	return false;
+}
+
+uint32_t FindMinState(map<uint32_t, uint32_t> states)
+{
+	map<uint32_t, uint32_t>::iterator iter;
+	iter = states.begin();
+	uint32_t minState = iter->first;
+	uint32_t minHammingDist = iter->second;
+
+	for (iter = states.begin(); iter != states.end(); iter++)
+	{
+		if (iter->second > minHammingDist)
 		{
-			for (uint32_t k = 0; k < automata[nextStates[j].state].size(); k++)
+			minState = iter->first;
+			minHammingDist = iter->second;
+		}
+	}
+	return minState;
+}
+
+void decoder::DecodeSequential(vector<uint32_t> bus)
+{
+	map<uint32_t, uint32_t>::iterator iter;
+	map<uint32_t, uint32_t> currStates;
+	map<uint32_t, uint32_t> nextStates;
+	vector<uint32_t> path;
+
+	// Init first Trellis states
+	currStates[0] = 0;
+
+	// Go over each symbol of encoded (scrambled) data
+	for (uint32_t i = 0; i < bus.size(); i++)
+	{
+		// Go over each of the current states and calulate next states and hamming distance
+		for (iter = currStates.begin(); iter != currStates.end(); iter++)
+		{
+			uint32_t currState = iter->first;
+			for (uint32_t inputBits = 0; inputBits < _automata[currState].size(); inputBits++)
 			{
-				trellis temp;
-				temp.state = automata[nextStates[j].state][k].state;
-				temp.hammingDist = CalcHammingDist(scrambledData[i], automata[nextStates[j].state][k].output);
-				nextStates.push_back(temp);
+				uint32_t hammingDist = CalcHammingDist(bus[i], _automata[currState][inputBits].output);
+				if (nextStates.count(_automata[currState][inputBits].state) > 0) {
+					if ( (iter->second + hammingDist) < nextStates[currState])
+						nextStates[_automata[currState][inputBits].state] = iter->second + hammingDist;
+				}
+				else
+					nextStates[_automata[currState][inputBits].state] = iter->second + hammingDist;
 			}
 		}
-		currStates.empty();
-	}*/
+
+		path.push_back(FindMinState(nextStates));
+
+		currStates = nextStates;
+		nextStates.clear();
+	}
+
+	//print most likely path
+	for (int i = 0; i < path.size(); i++)
+	{
+		PrintBitSet(path[i], log( _automata.size() ) / log( 2 ));
+		cout << " ";
+	}
+	cout << "\n";
 }
 
 void decoder::DecodeParallel()

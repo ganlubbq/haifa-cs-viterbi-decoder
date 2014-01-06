@@ -20,6 +20,8 @@ public:
 	~viterbi_module(void);
 	void Send(char* data);
 	void Scramble(vector<uint32_t> encodedData);
+	void Decode();
+	void PrintProperties();
 	void PrintBus();
 	void PrintXORS();
 	void PrintAutomata();

@@ -1,11 +1,11 @@
 #pragma once
 #include <stdlib.h>		  // srand, rand
-#include <iostream>       // std::cout
-#include <thread>         // std::thread
-#include <bitset>         // std::bitset
-#include <vector>		  // std::vector
-#include <map>			  // std:map
-#include <string>		  // std:string
+#include <iostream>       // cout
+#include <thread>         // uint32_t
+#include <bitset>         // bitset
+#include <vector>		  // vector
+#include <map>			  // map
+#include <string>		  // string
 
 using namespace std;
 

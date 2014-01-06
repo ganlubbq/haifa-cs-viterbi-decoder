@@ -64,22 +64,17 @@ uint32_t encoder::CalcOutput(uint32_t input)
 	{
 		// Get the current xor
 		bitset<32> xor = bitset<32>(_xors[i]);
-		first = true;
+		currXOR = false;
 
 		// Perform XOR between all bits in the buffer which has 1 in relative position on the xors vector
 		for (int bit = 0; bit < _constrainLength; bit++)
 		{
-			if ((xor[bit] == 1) && first)
-			{
-				currXOR = buffer[bit];
-				first = false;
-			}
-			else if (xor[bit] == 1) 
+			if (xor[bit] == 1) 
 				currXOR ^= buffer[bit];
 		}
 
 		// Put the result in output in consistent order (left to right)
-		output = (output << 1) | (int)currXOR;
+		output = (output << 1) | ((currXOR)? 1 : 0);
 	}
 	return output;
 }

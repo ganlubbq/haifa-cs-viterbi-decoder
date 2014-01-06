@@ -10,6 +10,12 @@ viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount
 	// calculate constrain length
 	_constrainLength = _inputBits * _registersCount;
 
+	if (_constrainLength > 32) 
+	{
+		cout << "ERROR: Constrain Length is limited to 32!\n";
+		exit(1);
+	}
+
 	// initilize polynomials with random sets of bits to xor
 	_xors.resize(_outputBits);
 	srand(time(NULL));
@@ -24,6 +30,8 @@ viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount
 
 	// Create the State Machine to be used later in decode
 	_automata.GenerateAutomata();
+
+	_decoder = decoder(_automata.getAutomata());
 }
 
 
@@ -61,6 +69,25 @@ void viterbi_module::Scramble(vector<uint32_t> encodedData)
 	}
 }
 
+void viterbi_module::Decode()
+{
+	if (_parallelism == 0)
+		_decoder.DecodeSequential(_bus);
+	else if (_parallelism > 0)
+		_decoder.DecodeParallel();
+}
+
+void viterbi_module::PrintProperties()
+{
+	cout << "Viterbi Module Properties:\n";
+	cout << "Input Bits: " << _inputBits << "\n";
+	cout << "Output Bits: " << _outputBits << "\n";
+	cout << "Registers Count: " << _registersCount << "\n";
+	cout << "Constrain Length: " << _constrainLength << "\n";
+	PrintXORS();
+	cout << "\n";
+}
+
 void viterbi_module::PrintBus()
 {
 	cout << "Bus Data:\n";
@@ -73,11 +100,9 @@ void viterbi_module::PrintBus()
 
 void viterbi_module::PrintXORS()
 {
+	cout << "XORS:\n";
 	for (int i = 0; i < _xors.size(); i++)
 	{
-		uint32_t numOfBits = pow(2, _constrainLength);
-		_xors[i] = rand() % numOfBits;
-		cout << "XOR" << i << ": ";
 		PrintBitSet(_xors[i], _constrainLength);
 		cout << "\n";
 	}

@@ -7,12 +7,9 @@ using namespace std;
 
 int main() 
 {
-	cout << "Create Viterbi Module\n";
 	viterbi_module viterbiTester = viterbi_module(3, 1, 3, 0);
-	cout << "\n";
 
-	viterbiTester.PrintXORS();
-	cout << "\n";
+	viterbiTester.PrintProperties();
 
 	char *input = "011011";
 	cout << "Input Data:\n" << input << "\n";
@@ -25,6 +22,8 @@ int main()
 
 	viterbiTester.PrintAutomata();
 	cout << "\n";
+
+	viterbiTester.Decode();
 
 	return 0;
 }
