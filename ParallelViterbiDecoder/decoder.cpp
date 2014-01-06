@@ -42,6 +42,7 @@ void decoder::DecodeSequential(vector<uint32_t> bus)
 
 	// Init first Trellis states
 	currStates[0] = 0;
+	path.push_back(0);
 
 	// Go over each symbol of encoded (scrambled) data
 	for (uint32_t i = 0; i < bus.size(); i++)
@@ -71,11 +72,25 @@ void decoder::DecodeSequential(vector<uint32_t> bus)
 		nextStates.clear();
 	}
 
-	//print most likely path
-	for (int i = 0; i < path.size(); i++)
+	//print most likely data
+	int outputBits = log( _automata.size() ) / log( 2 );
+	bool bad = true;
+	for (int i = 0; i < path.size() - 1; i++)
 	{
-		PrintBitSet(path[i], log( _automata.size() ) / log( 2 ));
-		cout << " ";
+		for (int inputBits = 0; inputBits < _automata[0].size(); inputBits++)
+		{
+			if (_automata[path[i]][inputBits].state == path[i+1])
+			{
+				PrintBitSet(inputBits, log( _automata[0].size() ) / log( 2 ));
+				bad = false;
+			}
+		}
+		if (bad)
+		{
+			cout << "\nERROR TOO LARGE: Can't correct\n";
+			break;
+		}
+		else bad = true;
 	}
 	cout << "\n";
 }

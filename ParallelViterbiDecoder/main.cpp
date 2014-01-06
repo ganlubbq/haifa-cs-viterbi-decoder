@@ -7,11 +7,11 @@ using namespace std;
 
 int main() 
 {
-	viterbi_module viterbiTester = viterbi_module(3, 1, 3, 0);
+	viterbi_module viterbiTester = viterbi_module(4, 2, 4, 0);
 
 	viterbiTester.PrintProperties();
 
-	char *input = "011011";
+	char *input = "1100111010100101010010110101001";
 	cout << "Input Data:\n" << input << "\n";
 	cout << "\n";
 
@@ -20,7 +20,7 @@ int main()
 	viterbiTester.PrintBus();
 	cout << "\n";
 
-	viterbiTester.PrintAutomata();
+	//viterbiTester.PrintAutomata();
 	cout << "\n";
 
 	viterbiTester.Decode();
