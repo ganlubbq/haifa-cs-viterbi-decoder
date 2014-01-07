@@ -1,3 +1,8 @@
+/* 
+ *	Authors:
+ *	Shiran Stan-Meleh  ID: 039067608
+ *	Gal Keret          ID: 066547969
+ */
 #pragma once
 #include <stdlib.h>		  // srand, rand
 #include <iostream>       // cout

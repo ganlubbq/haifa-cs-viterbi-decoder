@@ -1,3 +1,8 @@
+/* 
+ *	Authors:
+ *	Shiran Stan-Meleh  ID: 039067608
+ *	Gal Keret          ID: 066547969
+ */
 #include "automata.h"
 
 

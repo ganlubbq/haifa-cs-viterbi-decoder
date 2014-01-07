@@ -1,3 +1,8 @@
+/* 
+ *	Authors:
+ *	Shiran Stan-Meleh  ID: 039067608
+ *	Gal Keret          ID: 066547969
+ */
 #pragma once
 
 #include "helper_functions.h"
@@ -20,7 +25,8 @@ public:
 	~viterbi_module(void);
 	void Send(char* data);
 	void Scramble(vector<uint32_t> encodedData);
-	void Decode();
+	void DecodeSequential();
+	void DecodeParallel();
 	void PrintProperties();
 	void PrintBus();
 	void PrintXORS();

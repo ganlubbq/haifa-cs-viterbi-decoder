@@ -1,3 +1,9 @@
+/* 
+ *	Authors:
+ *	Shiran Stan-Meleh  ID: 039067608
+ *	Gal Keret          ID: 066547969
+ */
+
 #include <iostream>
 
 #include "viterbi_module.h"
@@ -7,7 +13,7 @@ using namespace std;
 
 int main() 
 {
-	viterbi_module viterbiTester = viterbi_module(2, 2, 1, 0);
+	viterbi_module viterbiTester = viterbi_module(3, 1, 4, 2);
 
 	viterbiTester.PrintProperties();
 
@@ -23,7 +29,9 @@ int main()
 	//viterbiTester.PrintAutomata();
 	cout << "\n";
 
-	viterbiTester.Decode();
+	viterbiTester.DecodeSequential();
+	
+	viterbiTester.DecodeParallel();
 
 	return 0;
 }

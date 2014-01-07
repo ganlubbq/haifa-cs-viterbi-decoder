@@ -1,3 +1,8 @@
+/* 
+ *	Authors:
+ *	Shiran Stan-Meleh  ID: 039067608
+ *	Gal Keret          ID: 066547969
+ */
 #include "viterbi_module.h"
 
 viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount, int parallelism)
@@ -74,12 +79,14 @@ void viterbi_module::Scramble(vector<uint32_t> encodedData)
 	}
 }
 
-void viterbi_module::Decode()
+void viterbi_module::DecodeSequential()
 {
-	if (_parallelism == 0)
-		_decoder.DecodeSequential(_bus);
-	else if (_parallelism > 0)
-		_decoder.DecodeParallel();
+	_decoder.DecodeSequential(_bus);
+}
+
+void viterbi_module::DecodeParallel()
+{
+	_decoder.DecodeParallel(_bus, _parallelism);
 }
 
 void viterbi_module::PrintProperties()
@@ -106,7 +113,7 @@ void viterbi_module::PrintBus()
 void viterbi_module::PrintXORS()
 {
 	cout << "XORS:\n";
-	for (int i = 0; i < _xors.size(); i++)
+	for (uint16_t i = 0; i < _xors.size(); i++)
 	{
 		PrintBitSet(_xors[i], _constrainLength);
 		cout << "\n";
