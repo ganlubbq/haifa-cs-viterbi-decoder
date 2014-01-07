@@ -7,7 +7,7 @@ using namespace std;
 
 int main() 
 {
-	viterbi_module viterbiTester = viterbi_module(4, 2, 4, 0);
+	viterbi_module viterbiTester = viterbi_module(2, 2, 1, 0);
 
 	viterbiTester.PrintProperties();
 
