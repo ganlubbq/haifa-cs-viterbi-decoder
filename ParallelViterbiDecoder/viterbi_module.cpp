@@ -41,7 +41,7 @@ viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount
 	// Create the State Machine to be used later in decode
 	_automata.GenerateAutomata();
 
-	_decoder = decoder(_inputBits, _constrainLength, _automata.getAutomata());
+	_decoder = decoder(_inputBits, _outputBits, _constrainLength, _automata.getAutomata());
 }
 
 

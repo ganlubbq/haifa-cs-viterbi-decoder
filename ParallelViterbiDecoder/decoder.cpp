@@ -1,8 +1,8 @@
 /* 
- *	Authors:
- *	Shiran Stan-Meleh  ID: 039067608
- *	Gal Keret          ID: 066547969
- */
+*	Authors:
+*	Shiran Stan-Meleh  ID: 039067608
+*	Gal Keret          ID: 066547969
+*/
 #include "decoder.h"
 
 
@@ -15,9 +15,10 @@ decoder::~decoder(void)
 {
 }
 
-decoder::decoder(int intputBits,int constrainLength, map<uint32_t, vector<state>> automata)
+decoder::decoder(int intputBits, int outputBits, int constrainLength, map<uint32_t, vector<state>> automata)
 {
 	_intputBits = intputBits;
+	_outputBits = outputBits;
 	_constrainLength = constrainLength;
 	_automata = automata;
 	_mtx = new mutex();
@@ -27,7 +28,7 @@ decoder::decoder(int intputBits,int constrainLength, map<uint32_t, vector<state>
 
 void decoder::InitMetrics()
 {
-	for (uint32_t input = 0; input < pow(2, _intputBits); input++)
+	for (uint32_t symbol = 0; symbol < pow(2, _outputBits); symbol++)
 	{
 		vector<vector<uint32_t>> rows;
 		for (uint32_t ps = 0; ps < pow(2, _constrainLength); ps++)
@@ -35,10 +36,13 @@ void decoder::InitMetrics()
 			vector<uint32_t> cols;
 			for (uint32_t ns = 0; ns < pow(2, _constrainLength); ns++)
 			{
+				for (uint32_t input = 0; input < pow(2, _intputBits); input++)
+				{
 				if (_automata[ps][input].state == ns)
-					cols.push_back(CalcHammingDist(input, _automata[ps][input].output));
+					cols.push_back(CalcHammingDist(symbol, _automata[ps][input].output));
 				else
 					cols.push_back(0xFFFFFFFF);
+				}
 			}
 			rows.push_back(cols);
 		}
@@ -159,13 +163,14 @@ void decoder::DecodeSequential(vector<uint32_t> bus)
 static void ThreadWorker(decoder *_decoder, uint16_t start, uint16_t end, vector<uint32_t> bus)
 {
 	vector<vector<uint32_t>> result = _decoder->_metrics[bus[start]];
+	
 	_decoder->_mtx->lock();
 	_decoder->_accumulatedMetrics[0] = result;
 	_decoder->_mtx->unlock();
 
 	// if last part is not size of input length / parallelism then adjust it
 	if (end > bus.size()) end = bus.size() - 1;
-	
+
 	// Perform sequential metric calculation from start of part recieved to end of part
 	for (int inputIndex = start + 1; inputIndex <= end; inputIndex++)
 	{
@@ -175,13 +180,14 @@ static void ThreadWorker(decoder *_decoder, uint16_t start, uint16_t end, vector
 		_decoder->_vectors[inputIndex] = result[0];
 		_decoder->_accumulatedMetrics[inputIndex] = result;
 		_decoder->_mtx->unlock();
+
 	}
 }
 
 void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 {
 	int sizeOfPart = bus.size()/parallelism;
-	
+
 	// Create p threads and pass each the start and end of input needed to be worked on
 	for (uint16_t start = 0; start < bus.size(); start += sizeOfPart)
 	{
@@ -196,4 +202,5 @@ void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 			_workers[threadID]->join();
 		}
 	}
+	cout << "";
 }

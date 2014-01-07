@@ -12,13 +12,13 @@
 class decoder
 {
 private:
-	int _intputBits, _constrainLength;
+	int _intputBits, _outputBits, _constrainLength;
 	vector<thread*> _workers;
 
 public:
 	decoder(void);
 	~decoder(void);
-	decoder(int intputBits,int constrainLength, map<uint32_t, vector<state>> automata);
+	decoder(int intputBits, int outputBits, int constrainLength, map<uint32_t, vector<state>> automata);
 	
 	map<uint32_t, vector<state>> _automata;
 	vector<vector<vector<uint32_t>>> _metrics;
