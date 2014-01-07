@@ -36,13 +36,17 @@ void decoder::InitMetrics()
 			vector<uint32_t> cols;
 			for (uint32_t ns = 0; ns < pow(2, _constrainLength); ns++)
 			{
+				bool found = false;
 				for (uint32_t input = 0; input < pow(2, _intputBits); input++)
 				{
-				if (_automata[ps][input].state == ns)
-					cols.push_back(CalcHammingDist(symbol, _automata[ps][input].output));
-				else
-					cols.push_back(0xFFFFFFFF);
+					if (_automata[ps][input].state == ns)
+					{
+						cols.push_back(CalcHammingDist(symbol, _automata[ps][input].output));
+						found = true;
+					}
 				}
+				if (!found)
+					cols.push_back(0xFFFFFFFF);
 			}
 			rows.push_back(cols);
 		}
@@ -163,7 +167,7 @@ void decoder::DecodeSequential(vector<uint32_t> bus)
 static void ThreadWorker(decoder *_decoder, uint16_t start, uint16_t end, vector<uint32_t> bus)
 {
 	vector<vector<uint32_t>> result = _decoder->_metrics[bus[start]];
-	
+
 	_decoder->_mtx->lock();
 	_decoder->_accumulatedMetrics[0] = result;
 	_decoder->_mtx->unlock();
@@ -175,13 +179,17 @@ static void ThreadWorker(decoder *_decoder, uint16_t start, uint16_t end, vector
 	for (int inputIndex = start + 1; inputIndex <= end; inputIndex++)
 	{
 		uint32_t symbol = bus[inputIndex];
+
 		result = _decoder->MultiplyMetrics(result, _decoder->_metrics[symbol]);
+
 		_decoder->_mtx->lock();
 		_decoder->_vectors[inputIndex] = result[0];
 		_decoder->_accumulatedMetrics[inputIndex] = result;
 		_decoder->_mtx->unlock();
-
 	}
+	_decoder->_mtx->lock();
+	_decoder->_results.push_back(result);
+	_decoder->_mtx->unlock();
 }
 
 void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
@@ -201,6 +209,12 @@ void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 		if (_workers[threadID]->joinable()) {
 			_workers[threadID]->join();
 		}
+	}
+
+	vector<vector<uint32_t>> currMetric = _results[0];
+	for (uint16_t i = 1; i < _results.size(); i++)
+	{
+		currMetric = (currMetric, _results[i]);
 	}
 	cout << "";
 }

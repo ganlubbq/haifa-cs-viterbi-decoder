@@ -13,11 +13,11 @@ using namespace std;
 
 int main() 
 {
-	viterbi_module viterbiTester = viterbi_module(4, 1, 3, 2);
+	viterbi_module viterbiTester = viterbi_module(2, 1, 3, 2);
 
 	viterbiTester.PrintProperties();
 
-	char *input = "110011101010010";
+	char *input = "1101";
 	cout << "Input Data:\n" << input << "\n";
 	cout << "\n";
 

@@ -24,6 +24,7 @@ public:
 	vector<vector<vector<uint32_t>>> _metrics;
 	map<uint32_t, vector<vector<uint32_t>>> _accumulatedMetrics;
 	map<uint32_t, vector<uint32_t>> _vectors;
+	vector<vector<vector<uint32_t>>> _results;
 	mutex *_mtx;
 	
 	void InitMetrics();
