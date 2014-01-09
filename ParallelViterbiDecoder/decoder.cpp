@@ -28,15 +28,19 @@ decoder::decoder(int intputBits, int outputBits, int constrainLength, map<uint32
 
 void decoder::InitMetrics()
 {
+	// Loop over all possible symbols values
 	for (uint32_t symbol = 0; symbol < pow(2, _outputBits); symbol++)
 	{
 		vector<vector<uint32_t>> rows;
+		// Loop over all states from which we go to next states
 		for (uint32_t ps = 0; ps < pow(2, _constrainLength); ps++)
 		{
 			vector<uint32_t> cols;
+			// Loop over the next states and check ouput if path is valid
 			for (uint32_t ns = 0; ns < pow(2, _constrainLength); ns++)
 			{
 				bool found = false;
+				// Since Automata is sorted by input check for each sybol all inputs and outputs and calc hamming dist
 				for (uint32_t input = 0; input < pow(2, _intputBits); input++)
 				{
 					if (_automata[ps][input].state == ns)
@@ -45,6 +49,7 @@ void decoder::InitMetrics()
 						found = true;
 					}
 				}
+				// If path is not valid put the max value as inifinty
 				if (!found)
 					cols.push_back(0xFFFFFFFF);
 			}
@@ -56,9 +61,11 @@ void decoder::InitMetrics()
 
 vector<vector<uint32_t>> decoder::MultiplyMetrics(vector<vector<uint32_t>> metA, vector<vector<uint32_t>> metB)
 {
+	// Init the result metric and the temp minium used un calculations
 	vector<vector<uint32_t>> metC;
 	uint32_t minimum = 0xFFFFFFFF;
 
+	// Make sure matric size comply
 	if (metA.size() != metB.size())
 	{
 		cout << "Metrics Size not match!\n";
@@ -84,11 +91,13 @@ vector<vector<uint32_t>> decoder::MultiplyMetrics(vector<vector<uint32_t>> metA,
 
 uint32_t decoder::FindMinState(map<uint32_t, uint32_t> states)
 {
+	// Find the minimum state in a vector of states in trellis
 	map<uint32_t, uint32_t>::iterator iter;
 	iter = states.begin();
 	uint32_t minState = iter->first;
 	uint32_t minHammingDist = iter->second;
 
+	// Loop over all states and save minimum
 	for (iter = states.begin(); iter != states.end(); iter++)
 	{
 		if (iter->second < minHammingDist)
@@ -163,12 +172,13 @@ void decoder::DecodeSequential(vector<uint32_t> bus)
 	cout << "\n";
 }
 
-// This static function will run in thread and perform the sub metric calculations
+// This static function will run in each thread and perform the sub metric calculations
 static void ThreadWorker(decoder *_decoder, uint16_t start, uint16_t end, vector<uint32_t> bus)
 {
 	vector<vector<uint32_t>> result = _decoder->_metrics[bus[start]];
 
 	_decoder->_mtx->lock();
+	_decoder->_vectors[start] = result[0];
 	_decoder->_accumulatedMetrics[0] = result;
 	_decoder->_mtx->unlock();
 
@@ -194,7 +204,9 @@ static void ThreadWorker(decoder *_decoder, uint16_t start, uint16_t end, vector
 
 void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 {
-	int sizeOfPart = bus.size()/parallelism;
+	int sizeOfPart;
+	if (parallelism == 0) sizeOfPart = bus.size();
+	else sizeOfPart = bus.size()/parallelism;
 
 	// Create p threads and pass each the start and end of input needed to be worked on
 	for (uint16_t start = 0; start < bus.size(); start += sizeOfPart)
@@ -211,10 +223,31 @@ void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 		}
 	}
 
+	// Multiply the accumulated metrics returned from each thread
 	vector<vector<uint32_t>> currMetric = _results[0];
 	for (uint16_t i = 1; i < _results.size(); i++)
 	{
-		currMetric = (currMetric, _results[i]);
+		currMetric = MultiplyMetrics(currMetric, _results[i]);
 	}
-	cout << "";
+	
+	// Just for testing
+	PrintVectors();
+}
+
+void decoder::PrintVectors()
+{
+	cout << "Trellis Hamming Distances:\n";
+	for (uint16_t states = 0; states < pow(2, _constrainLength); states++)
+	{
+		PrintBitSet(bitset<32>(states), _constrainLength);
+		cout << ":\t";
+		for (uint16_t i = 0; i < _vectors.size(); i++)
+		{
+			if (_vectors[i][states] > _constrainLength)
+				cout << "inf\t";
+			else cout << _vectors[i][states] << "\t";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
 }

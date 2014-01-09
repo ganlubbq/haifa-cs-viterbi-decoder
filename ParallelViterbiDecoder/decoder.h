@@ -32,5 +32,6 @@ public:
 	uint32_t FindMinState(map<uint32_t, uint32_t> states);
 	void DecodeSequential(vector<uint32_t> bus);
 	void DecodeParallel(vector<uint32_t> bus, int parallelism);
+	void PrintVectors();
 };
 

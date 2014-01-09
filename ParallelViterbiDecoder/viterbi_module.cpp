@@ -1,8 +1,8 @@
 /* 
- *	Authors:
- *	Shiran Stan-Meleh  ID: 039067608
- *	Gal Keret          ID: 066547969
- */
+*	Authors:
+*	Shiran Stan-Meleh  ID: 039067608
+*	Gal Keret          ID: 066547969
+*/
 #include "viterbi_module.h"
 
 viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount, int parallelism)
@@ -31,7 +31,7 @@ viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount
 
 		if (_xors[i] == 0) 
 		{
-			cout << "ERROR: Random XOR is 0!\n";
+			i--;
 		}
 	}
 
@@ -81,12 +81,18 @@ void viterbi_module::Scramble(vector<uint32_t> encodedData)
 
 void viterbi_module::DecodeSequential()
 {
+	clock_t tstart = clock();
 	_decoder.DecodeSequential(_bus);
+	clock_t tend = clock();
+	cout << "Sequential Decode took "<< (float)(tend - tstart)/CLOCKS_PER_SEC << " second(s).\n"<< endl;
 }
 
 void viterbi_module::DecodeParallel()
 {
+	clock_t tstart = clock();
 	_decoder.DecodeParallel(_bus, _parallelism);
+	clock_t tend = clock();
+	cout << "Parallel Decode took "<< (float)(tend - tstart)/CLOCKS_PER_SEC << " second(s).\n"<< endl;
 }
 
 void viterbi_module::PrintProperties()
