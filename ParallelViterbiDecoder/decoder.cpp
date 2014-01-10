@@ -63,7 +63,7 @@ vector<vector<uint32_t>> decoder::MultiplyMetrics(vector<vector<uint32_t>> metA,
 {
 	// Init the result metric and the temp minium used un calculations
 	vector<vector<uint32_t>> metC;
-	uint32_t minimum = 0xFFFFFFFF;
+	uint32_t minimum;
 
 	// Make sure matric size comply
 	if (metA.size() != metB.size())
@@ -75,14 +75,18 @@ vector<vector<uint32_t>> decoder::MultiplyMetrics(vector<vector<uint32_t>> metA,
 	for (uint32_t i = 0; i < metA.size(); i++)
 	{
 		vector<uint32_t> cols;
-		for (uint32_t j = 0; j < metA.size(); j++)
+		for (uint32_t j = 0; j < metB.size(); j++)
 		{
+			minimum = 0xFFFFFFFF;
 			for (uint32_t k = 0; k < metA.size(); k++)
 			{
-				minimum = min(minimum, metA[i][k] + metB[k][j]);
+				// avoid overflow
+				if (metA[i][k] == 0xFFFFFFFF || metB[k][j] == 0xFFFFFFFF)
+					minimum = min(minimum, 0xFFFFFFFF);
+				else
+					minimum = min(minimum, metA[i][k] + metB[k][j]);
 			}
 			cols.push_back(minimum);
-			minimum = 0xFFFFFFFF;
 		}
 		metC.push_back(cols);
 	}
@@ -150,7 +154,6 @@ void decoder::DecodeSequential(vector<uint32_t> bus)
 
 	//print most likely data
 	cout << "Most Likely Data:\n";
-	int outputBits = log( _automata.size() ) / log( 2 );
 	bool bad = true;
 	for (uint16_t i = 0; i < path.size() - 1; i++)
 	{
@@ -158,7 +161,7 @@ void decoder::DecodeSequential(vector<uint32_t> bus)
 		{
 			if (_automata[path[i]][inputBits].state == path[i+1])
 			{
-				PrintBitSet(inputBits, log( _automata[0].size() ) / log( 2 ));
+				PrintBitSet(inputBits, _intputBits);
 				bad = false;
 			}
 		}
@@ -229,12 +232,36 @@ void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 	{
 		currMetric = MultiplyMetrics(currMetric, _results[i]);
 	}
-	
+
 	// Just for testing
-	PrintVectors();
+	PrintVectors(bus);
+
+	//print most likely data
+	cout << "Most Likely Data:\n";
+	for (uint16_t inputBits = 0; inputBits < _automata[0].size(); inputBits++)
+	{
+		if (_automata[0][inputBits].state == VectorMin(_vectors[0]))
+		{
+			PrintBitSet(inputBits, _intputBits);
+		}
+	}
+
+	for (uint16_t i = 0; i < _vectors.size() - 1; i++)
+	{
+		uint32_t ps = VectorMin(_vectors[i]);
+		uint32_t ns = VectorMin(_vectors[i+1]);
+		for (uint16_t inputBits = 0; inputBits < _automata[0].size(); inputBits++)
+		{
+			if (_automata[ps][inputBits].state == ns)
+			{
+				PrintBitSet(inputBits, _intputBits);
+			}
+		}
+	}
+	cout << "\n";
 }
 
-void decoder::PrintVectors()
+void decoder::PrintVectors(vector<uint32_t> bus)
 {
 	cout << "Trellis Hamming Distances:\n";
 	for (uint16_t states = 0; states < pow(2, _constrainLength); states++)
@@ -243,7 +270,7 @@ void decoder::PrintVectors()
 		cout << ":\t";
 		for (uint16_t i = 0; i < _vectors.size(); i++)
 		{
-			if (_vectors[i][states] > _constrainLength)
+			if (_vectors[i][states] == 0xFFFFFFFF)
 				cout << "inf\t";
 			else cout << _vectors[i][states] << "\t";
 		}

@@ -1,8 +1,8 @@
 /* 
- *	Authors:
- *	Shiran Stan-Meleh  ID: 039067608
- *	Gal Keret          ID: 066547969
- */
+*	Authors:
+*	Shiran Stan-Meleh  ID: 039067608
+*	Gal Keret          ID: 066547969
+*/
 #include "automata.h"
 
 
@@ -21,6 +21,9 @@ automata::automata(int inputBits, int outputBits, int constrainLength, vector<ui
 	_outputBits = outputBits;
 	_constrainLength = constrainLength;
 	_xors = xors;
+	
+	// Create the State Machine to be used later in decode
+	GenerateAutomata();
 }
 
 map<uint32_t, vector<state>> automata::getAutomata()

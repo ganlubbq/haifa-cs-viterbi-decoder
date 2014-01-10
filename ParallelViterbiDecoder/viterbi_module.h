@@ -18,6 +18,7 @@ private:
 	automata _automata;
 	int _inputBits, _outputBits, _registersCount, _constrainLength, _parallelism;
 	vector<uint32_t> _xors;
+	vector<uint32_t> _encodedData;
 	vector<uint32_t> _bus; // Send will save data on the bus with scarmble
 
 public:
@@ -28,6 +29,7 @@ public:
 	void DecodeSequential();
 	void DecodeParallel();
 	void PrintProperties();
+	void PrintEncodedData();
 	void PrintBus();
 	void PrintXORS();
 	void PrintAutomata();

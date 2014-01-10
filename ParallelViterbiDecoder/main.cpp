@@ -13,21 +13,24 @@ using namespace std;
 
 int main() 
 {
-	viterbi_module viterbiTester = viterbi_module(2, 1, 2, 1);
+	viterbi_module viterbiTester = viterbi_module(10, 1, 2, 1);
 
 	viterbiTester.PrintProperties();
 
-	char *input = "110110100111";
+	char *input = "0110010111";
 	cout << "Input Data:\n" << input << "\n";
 	cout << "\n";
 
 	viterbiTester.Send(input);
 
+	viterbiTester.PrintEncodedData();
+	cout << "\n";
+
 	viterbiTester.PrintBus();
 	cout << "\n";
 
 	//viterbiTester.PrintAutomata();
-	cout << "\n";
+	//cout << "\n";
 
 	viterbiTester.DecodeSequential();
 	

@@ -37,10 +37,6 @@ viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount
 
 	_encoder = encoder(_inputBits, _outputBits, _constrainLength, _xors);
 	_automata = automata(_inputBits, _outputBits, _constrainLength, _xors);
-
-	// Create the State Machine to be used later in decode
-	_automata.GenerateAutomata();
-
 	_decoder = decoder(_inputBits, _outputBits, _constrainLength, _automata.getAutomata());
 }
 
@@ -52,19 +48,10 @@ viterbi_module::~viterbi_module(void)
 void viterbi_module::Send(char* data)
 {
 	// First encode the data
-	vector<uint32_t> encodedData;
-	encodedData = _encoder.Encode(data);
-
-	// Print out the encoded data in blocks (each for one input symbol)
-	cout << "Encoded Data:\n";
-	for (uint16_t i = 0; i < encodedData.size(); i++)
-	{
-		PrintBitSet(encodedData[i], _outputBits);
-	}
-	cout << "\n\n";
+	_encodedData = _encoder.Encode(data);
 
 	// Filp some bits to simulate bus interference
-	Scramble(encodedData);
+	Scramble(_encodedData);
 }
 
 void viterbi_module::Scramble(vector<uint32_t> encodedData)
@@ -106,12 +93,25 @@ void viterbi_module::PrintProperties()
 	cout << "\n";
 }
 
+void viterbi_module::PrintEncodedData()
+{
+	// Print out the encoded data in blocks (each for one input symbol)
+	cout << "Encoded Data:\n";
+	for (uint16_t i = 0; i < _encodedData.size(); i++)
+	{
+		PrintBitSet(_encodedData[i], _outputBits);
+		cout << " ";
+	}
+	cout << "\n";
+}
+
 void viterbi_module::PrintBus()
 {
 	cout << "Bus Data:\n";
 	for (uint16_t i = 0; i < _bus.size(); i++)
 	{
 		PrintBitSet(_bus[i], _outputBits);
+		cout << " ";
 	}
 	cout << "\n";
 }

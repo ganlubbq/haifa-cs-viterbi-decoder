@@ -26,3 +26,4 @@ struct TrellisValue {
 
 void PrintBitSet(bitset<32> data, int count);
 int CalcHammingDist(uint32_t num1, uint32_t num2);
+uint32_t VectorMin(vector<uint32_t> vect);

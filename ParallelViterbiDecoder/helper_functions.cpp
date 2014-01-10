@@ -26,3 +26,18 @@ int CalcHammingDist(uint32_t num1, uint32_t num2)
 	}
 	return result;
 }
+
+uint32_t VectorMin(vector<uint32_t> vect)
+{
+	uint32_t min = vect[0];
+	uint32_t state = 0;
+	for (uint32_t i = 1; i < vect.size(); i++)
+	{
+		if (vect[i] < min)
+		{
+			min = vect[i];
+			state = i;
+		}
+	}
+	return state;
+}
