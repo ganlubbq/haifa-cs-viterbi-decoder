@@ -37,7 +37,7 @@ viterbi_module::viterbi_module(int outputBits, int inputBits, int registersCount
 
 	_encoder = encoder(_inputBits, _outputBits, _constrainLength, _xors);
 	_automata = automata(_inputBits, _outputBits, _constrainLength, _xors);
-	_decoder = decoder(_inputBits, _outputBits, _constrainLength, _automata.getAutomata());
+	_decoder = decoder(_inputBits, _outputBits, _constrainLength, _automata.GetAutomata(), _automata.GetInverseAutomata());
 }
 
 
@@ -129,4 +129,9 @@ void viterbi_module::PrintXORS()
 void viterbi_module::PrintAutomata()
 {
 	_automata.PrintAutomata();
+}
+
+void viterbi_module::PrintInverseAutomata()
+{
+	_automata.PrintInverseAutomata();
 }

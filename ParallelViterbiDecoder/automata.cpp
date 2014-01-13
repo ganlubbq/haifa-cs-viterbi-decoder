@@ -21,16 +21,21 @@ automata::automata(int inputBits, int outputBits, int constrainLength, vector<ui
 	_outputBits = outputBits;
 	_constrainLength = constrainLength;
 	_xors = xors;
-	
+
 	// Create the State Machine to be used later in decode
 	GenerateAutomata();
+	GenerateInverseAutomata();
 }
 
-map<uint32_t, vector<state>> automata::getAutomata()
+map<uint32_t, vector<state>> automata::GetAutomata()
 {
 	return _automata;
 }
 
+map<uint32_t, map<uint32_t, state>> automata::GetInverseAutomata()
+{
+	return _inverseAutomata;
+}
 
 uint32_t automata::CalcOutput(uint32_t input)
 {
@@ -86,23 +91,19 @@ void automata::GenerateAutomata()
 
 void automata::GenerateInverseAutomata()
 {
-	cout << "Inverse Automata:\n";
 	for(std::map<uint32_t, vector<state>>::iterator iter = _automata.begin(); iter != _automata.end(); ++iter)
 	{
-		PrintBitSet(bitset<32>(iter->first), _constrainLength);
-		cout << " -> \t";
+		map<uint32_t, state> tempMap;
 		for (uint16_t input = 0; input < iter->second.size(); input++)
 		{
-			PrintBitSet(bitset<32>(input), _inputBits);
-			cout << ": ";
-			PrintBitSet(bitset<32>(iter->second[input].state), _constrainLength);
-			cout << "/";
-			PrintBitSet(bitset<32>(iter->second[input].output), _constrainLength);
-			cout << "\t";
+			// for each ouput bit create new state with input
+			state tempState;
+			tempState.output = input;
+			tempState.state = iter->second[input].state;
+			tempMap[iter->second[input].output] = tempState;
 		}
-		cout << "\n";
+		_inverseAutomata[iter->first] = tempMap;
 	}
-	cout << "\n";
 }
 
 void automata::PrintAutomata()
@@ -118,7 +119,28 @@ void automata::PrintAutomata()
 			cout << ": ";
 			PrintBitSet(bitset<32>(iter->second[input].state), _constrainLength);
 			cout << "/";
-			PrintBitSet(bitset<32>(iter->second[input].output), _constrainLength);
+			PrintBitSet(bitset<32>(iter->second[input].output), _outputBits);
+			cout << "\t";
+		}
+		cout << "\n";
+	}
+	cout << "\n";
+}
+
+void automata::PrintInverseAutomata()
+{
+	cout << "Inverse Automata:\n";
+	for(std::map<uint32_t, map<uint32_t, state>>::iterator iterState = _inverseAutomata.begin(); iterState != _inverseAutomata.end(); ++iterState)
+	{
+		PrintBitSet(bitset<32>(iterState->first), _constrainLength);
+		cout << " -> \t";
+		for(std::map<uint32_t, state>::iterator iter = iterState->second.begin(); iter != iterState->second.end(); ++iter)
+		{
+			PrintBitSet(bitset<32>(iter->first), _outputBits);
+			cout << ": ";
+			PrintBitSet(bitset<32>(iter->second.state), _constrainLength);
+			cout << "/";
+			PrintBitSet(bitset<32>(iter->second.output), _inputBits);
 			cout << "\t";
 		}
 		cout << "\n";

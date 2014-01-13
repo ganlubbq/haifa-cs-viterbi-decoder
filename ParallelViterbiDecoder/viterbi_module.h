@@ -33,5 +33,6 @@ public:
 	void PrintBus();
 	void PrintXORS();
 	void PrintAutomata();
+	void PrintInverseAutomata();
 };
 

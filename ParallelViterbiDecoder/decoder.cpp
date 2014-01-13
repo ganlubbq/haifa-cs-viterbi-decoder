@@ -15,12 +15,13 @@ decoder::~decoder(void)
 {
 }
 
-decoder::decoder(int intputBits, int outputBits, int constrainLength, map<uint32_t, vector<state>> automata)
+decoder::decoder(int intputBits, int outputBits, int constrainLength, map<uint32_t, vector<state>> automata, map<uint32_t, map<uint32_t, state>> inverseAutomata)
 {
 	_intputBits = intputBits;
 	_outputBits = outputBits;
 	_constrainLength = constrainLength;
 	_automata = automata;
+	_inverseAutomata = inverseAutomata;
 	_mtx = new mutex();
 
 	InitMetrics();
@@ -91,6 +92,29 @@ vector<vector<uint32_t>> decoder::MultiplyMetrics(vector<vector<uint32_t>> metA,
 		metC.push_back(cols);
 	}
 	return metC;
+}
+
+uint32_t decoder::DecodeInputBetweenStates(uint32_t sourceState, uint32_t finalState)
+{
+	return 0;
+}
+
+uint32_t decoder::FindSourceState(vector<vector<uint32_t>> metB, vector<vector<uint32_t>> metM, uint32_t finalState)
+{
+	// int value
+	uint32_t sourceState = 0;
+	uint32_t currMin = metB[0][0] + metM[0][finalState];
+
+	// Go over the overall paths from states in M to final State in M and find the min path
+	for (uint32_t k = 1; k < metB.size(); k++)
+	{
+		if (metB[0][k] + metM[k][finalState] < currMin)
+		{
+			currMin = metB[0][k] + metM[k][finalState];
+			sourceState = k;
+		}
+	}
+	return sourceState;
 }
 
 uint32_t decoder::FindMinState(map<uint32_t, uint32_t> states)

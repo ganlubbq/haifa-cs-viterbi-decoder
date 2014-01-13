@@ -1,8 +1,8 @@
 /* 
- *	Authors:
- *	Shiran Stan-Meleh  ID: 039067608
- *	Gal Keret          ID: 066547969
- */
+*	Authors:
+*	Shiran Stan-Meleh  ID: 039067608
+*	Gal Keret          ID: 066547969
+*/
 
 #include <iostream>
 
@@ -29,11 +29,14 @@ int main()
 	viterbiTester.PrintBus();
 	cout << "\n";
 
-	//viterbiTester.PrintAutomata();
-	//cout << "\n";
+	viterbiTester.PrintAutomata();
+	cout << "\n";
+
+	viterbiTester.PrintInverseAutomata();
+	cout << "\n";
 
 	viterbiTester.DecodeSequential();
-	
+
 	viterbiTester.DecodeParallel();
 
 	return 0;
