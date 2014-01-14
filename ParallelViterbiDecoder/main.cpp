@@ -13,7 +13,7 @@ using namespace std;
 
 int main() 
 {
-	viterbi_module viterbiTester = viterbi_module(10, 1, 2, 1);
+	viterbi_module viterbiTester = viterbi_module(10, 2, 2, 1);
 
 	viterbiTester.PrintProperties();
 
@@ -29,11 +29,11 @@ int main()
 	viterbiTester.PrintBus();
 	cout << "\n";
 
-	viterbiTester.PrintAutomata();
-	cout << "\n";
+	//viterbiTester.PrintAutomata();
+	//cout << "\n";
 
-	viterbiTester.PrintInverseAutomata();
-	cout << "\n";
+	//viterbiTester.PrintInverseAutomata();
+	//cout << "\n";
 
 	viterbiTester.DecodeSequential();
 

@@ -58,7 +58,7 @@ void viterbi_module::Scramble(vector<uint32_t> encodedData)
 {
 	_bus = encodedData;
 	srand(time(NULL));
-	for (int i = 0; (i < _outputBits) && (i < _bus.size()); i = i + rand() % _bus.size())
+	for (uint16_t i = 0; (i < _outputBits) && (i < _bus.size()); i = i + rand() % _bus.size())
 	{
 		bitset<32> block = bitset<32>(_bus[i]);
 		block[rand() % _outputBits].flip();

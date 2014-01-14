@@ -56,47 +56,19 @@ void decoder::InitMetrics()
 			}
 			rows.push_back(cols);
 		}
-		_metrics.push_back(rows);
+		_adjacentMetrics.push_back(rows);
 	}
-}
-
-vector<vector<uint32_t>> decoder::MultiplyMetrics(vector<vector<uint32_t>> metA, vector<vector<uint32_t>> metB)
-{
-	// Init the result metric and the temp minium used un calculations
-	vector<vector<uint32_t>> metC;
-	uint32_t minimum;
-
-	// Make sure matric size comply
-	if (metA.size() != metB.size())
-	{
-		cout << "Metrics Size not match!\n";
-		exit(1);
-	}
-
-	for (uint32_t i = 0; i < metA.size(); i++)
-	{
-		vector<uint32_t> cols;
-		for (uint32_t j = 0; j < metB.size(); j++)
-		{
-			minimum = 0xFFFFFFFF;
-			for (uint32_t k = 0; k < metA.size(); k++)
-			{
-				// avoid overflow
-				if (metA[i][k] == 0xFFFFFFFF || metB[k][j] == 0xFFFFFFFF)
-					minimum = min(minimum, 0xFFFFFFFF);
-				else
-					minimum = min(minimum, metA[i][k] + metB[k][j]);
-			}
-			cols.push_back(minimum);
-		}
-		metC.push_back(cols);
-	}
-	return metC;
 }
 
 uint32_t decoder::DecodeInputBetweenStates(uint32_t sourceState, uint32_t finalState)
 {
-	return 0;
+	for(std::map<uint32_t, state>::iterator iter = _inverseAutomata[sourceState].begin(); iter != _inverseAutomata[sourceState].end(); ++iter)
+	{
+		if (iter->second.state == finalState)
+			return iter->second.output;
+	}
+
+	return -1;
 }
 
 uint32_t decoder::FindSourceState(vector<vector<uint32_t>> metB, vector<vector<uint32_t>> metM, uint32_t finalState)
@@ -199,36 +171,6 @@ void decoder::DecodeSequential(vector<uint32_t> bus)
 	cout << "\n";
 }
 
-// This static function will run in each thread and perform the sub metric calculations
-static void ThreadWorker(decoder *_decoder, uint16_t start, uint16_t end, vector<uint32_t> bus)
-{
-	vector<vector<uint32_t>> result = _decoder->_metrics[bus[start]];
-
-	_decoder->_mtx->lock();
-	_decoder->_vectors[start] = result[0];
-	_decoder->_accumulatedMetrics[0] = result;
-	_decoder->_mtx->unlock();
-
-	// if last part is not size of input length / parallelism then adjust it
-	if (end > bus.size()) end = bus.size() - 1;
-
-	// Perform sequential metric calculation from start of part recieved to end of part
-	for (int inputIndex = start + 1; inputIndex <= end; inputIndex++)
-	{
-		uint32_t symbol = bus[inputIndex];
-
-		result = _decoder->MultiplyMetrics(result, _decoder->_metrics[symbol]);
-
-		_decoder->_mtx->lock();
-		_decoder->_vectors[inputIndex] = result[0];
-		_decoder->_accumulatedMetrics[inputIndex] = result;
-		_decoder->_mtx->unlock();
-	}
-	_decoder->_mtx->lock();
-	_decoder->_results.push_back(result);
-	_decoder->_mtx->unlock();
-}
-
 void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 {
 	int sizeOfPart;
@@ -236,10 +178,28 @@ void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 	else sizeOfPart = bus.size()/parallelism;
 
 	// Create p threads and pass each the start and end of input needed to be worked on
-	for (uint16_t start = 0; start < bus.size(); start += sizeOfPart)
+	uint16_t subsetID = 0;
+	uint16_t start = 0;
+	while (start < bus.size())
 	{
-		thread* newThread = new thread(ThreadWorker, this, start, start + sizeOfPart - 1, bus);
+		uint16_t end = start + sizeOfPart - 1;
+		uint16_t diff = bus.size() - 1 - end;
+		// bus input has residule when divided by p - attach it to final part
+		if (diff < sizeOfPart)
+		{
+			end += diff;
+		}
+
+		thread* newThread = new thread(CalcAccummlatedMetrices, this, subsetID, start, end, bus);
 		_workers.push_back( newThread );
+
+		if (diff < sizeOfPart)
+		{
+			break;
+		}
+
+		start += sizeOfPart;
+		subsetID++;
 	}
 
 	// wait for all theards to finish
@@ -250,55 +210,149 @@ void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 		}
 	}
 
-	// Multiply the accumulated metrics returned from each thread
-	vector<vector<uint32_t>> currMetric = _results[0];
-	for (uint16_t i = 1; i < _results.size(); i++)
+	// Calculate Bs and Ms subsets in 2 threads to Find the final state between each subset of metrics
+	vector<vector<vector<uint32_t>>> Bs;
+	vector<vector<vector<uint32_t>>> Ms;
+	vector<uint32_t> finalStates;
+	thread BsThread = thread(CalcBs, this->_subsetMetrics, &Bs, &finalStates);
+	thread MsThread = thread(CalcMs, this->_subsetMetrics, &Ms);
+	BsThread.join();
+	MsThread.join();
+
+	for (int i = 0; i < parallelism - 1; i++)
 	{
-		currMetric = MultiplyMetrics(currMetric, _results[i]);
+		finalStates.push_back(FindSourceState(Bs[i+1], Ms[i], finalStates[i]));
 	}
 
-	// Just for testing
-	PrintVectors(bus);
+	// Create p threads and pass each the start and end of input needed to be worked on
+	start = 0;
+	subsetID = 0;
+	_workers.empty();
+	while (start < bus.size())
+	{
+		uint16_t end = start + sizeOfPart - 1;
+		uint16_t diff = bus.size() - 1 - end;
+		// bus input has residule when divided by p - attach it to final part
+		if (diff < sizeOfPart)
+		{
+			end += diff;
+		}
 
-	//print most likely data
+		thread* newThread = new thread(TraceBack, this, start, end, finalStates[subsetID]);
+		_workers.push_back( newThread );
+
+		if (diff < sizeOfPart)
+		{
+			break;
+		}
+
+		start += sizeOfPart;
+		subsetID++;
+	}
+
+	// Wait for all theards to finish
+	for (uint16_t threadID = 0; threadID < _workers.size(); threadID++) 
+	{
+		if (_workers[threadID]->joinable()) {
+			_workers[threadID]->join();
+		}
+	}
+
+	// Print result
 	cout << "Most Likely Data:\n";
-	for (uint16_t inputBits = 0; inputBits < _automata[0].size(); inputBits++)
+	for (uint32_t index = 0; index < _decodedData.size(); index++)
 	{
-		if (_automata[0][inputBits].state == VectorMin(_vectors[0]))
-		{
-			PrintBitSet(inputBits, _intputBits);
-		}
-	}
-
-	for (uint16_t i = 0; i < _vectors.size() - 1; i++)
-	{
-		uint32_t ps = VectorMin(_vectors[i]);
-		uint32_t ns = VectorMin(_vectors[i+1]);
-		for (uint16_t inputBits = 0; inputBits < _automata[0].size(); inputBits++)
-		{
-			if (_automata[ps][inputBits].state == ns)
-			{
-				PrintBitSet(inputBits, _intputBits);
-			}
-		}
+		PrintBitSet(_decodedData[index], _intputBits);
 	}
 	cout << "\n";
 }
 
 void decoder::PrintVectors(vector<uint32_t> bus)
 {
+	/*
 	cout << "Trellis Hamming Distances:\n";
 	for (uint16_t states = 0; states < pow(2, _constrainLength); states++)
 	{
-		PrintBitSet(bitset<32>(states), _constrainLength);
-		cout << ":\t";
-		for (uint16_t i = 0; i < _vectors.size(); i++)
-		{
-			if (_vectors[i][states] == 0xFFFFFFFF)
-				cout << "inf\t";
-			else cout << _vectors[i][states] << "\t";
-		}
-		cout << "\n";
+	PrintBitSet(bitset<32>(states), _constrainLength);
+	cout << ":\t";
+	for (uint16_t i = 0; i < _accumulatedMetrics.size(); i++)
+	{
+	if (_accumulatedMetrics[i][states] == 0xFFFFFFFF)
+	cout << "inf\t";
+	else cout << _accumulatedMetrics[i][states] << "\t";
 	}
 	cout << "\n";
+	}
+	cout << "\n";
+	*/
+}
+
+/************************************ Thread Functions ***********************************/
+static void CalcAccummlatedMetrices(decoder *_decoder, uint16_t subsetID, uint16_t start, uint16_t end, vector<uint32_t> bus)
+{
+	vector<vector<uint32_t>> result = _decoder->_adjacentMetrics[bus[start]];
+
+	_decoder->_mtx->lock();
+	_decoder->_accumulatedMetrics[start] = result;
+	_decoder->_mtx->unlock();
+
+	// if last part is not size of input length / parallelism then adjust it
+	if (end > bus.size()) end = bus.size() - 1;
+
+	// Perform sequential metric calculation from start of part recieved to end of part
+	for (int inputIndex = start + 1; inputIndex <= end; inputIndex++)
+	{
+		uint32_t symbol = bus[inputIndex];
+
+		result = MultiplyMetrics(result, _decoder->_adjacentMetrics[symbol]);
+
+		_decoder->_mtx->lock();
+		_decoder->_accumulatedMetrics[inputIndex] = result;
+		_decoder->_mtx->unlock();
+	}
+	_decoder->_mtx->lock();
+	_decoder->_subsetMetrics[subsetID] = result;
+	_decoder->_mtx->unlock();
+}
+
+static void CalcBs(map<uint32_t, vector<vector<uint32_t>>> subsetMetrics, vector<vector<vector<uint32_t>>> *Bs, vector<uint32_t> *finalStates)
+{
+	vector<vector<uint32_t>> B = subsetMetrics[0];
+	Bs->push_back(B);
+	// start from first subset and multiply the next subset with current each time
+	for (uint16_t b = 1; b < subsetMetrics.size(); b++)
+	{
+		B = MultiplyMetrics(B, subsetMetrics[b]);
+		Bs->push_back(B);
+	}
+
+	// while already calculating the whole metrics multipliers get the final state
+	finalStates->push_back(VectorMin(B[0]));
+	// to ease the finding of source states later on
+	reverse(Bs->begin(),Bs->end());
+}
+
+static void CalcMs(map<uint32_t, vector<vector<uint32_t>>> subsetMetrics, vector<vector<vector<uint32_t>>> *Ms)
+{
+	vector<vector<uint32_t>> M = subsetMetrics[subsetMetrics.size() - 1];
+	Ms->push_back(M);
+	// start from end subset and multiply the previous subset with current each time
+	for (int m = subsetMetrics.size() - 2; m >= 0 ; m--)
+	{
+		M = MultiplyMetrics(M, subsetMetrics[m]);
+		Ms->push_back(M);
+	}
+}
+
+static void TraceBack(decoder *_decoder, uint16_t start, uint16_t end, uint32_t finalState)
+{
+	uint32_t sourceState;
+	for (uint32_t index = end; index > start; index--)
+	{
+		sourceState = _decoder->FindSourceState(_decoder->_accumulatedMetrics[index-1], _decoder->_accumulatedMetrics[index], finalState);
+		_decoder->_mtx->lock();
+		_decoder->_decodedData[index] = _decoder->DecodeInputBetweenStates(sourceState, finalState);
+		_decoder->_mtx->unlock();
+		finalState = sourceState;
+	}
 }

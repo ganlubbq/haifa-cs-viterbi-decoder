@@ -1,8 +1,8 @@
 /* 
- *	Authors:
- *	Shiran Stan-Meleh  ID: 039067608
- *	Gal Keret          ID: 066547969
- */
+*	Authors:
+*	Shiran Stan-Meleh  ID: 039067608
+*	Gal Keret          ID: 066547969
+*/
 #pragma once
 #include <stdlib.h>		  // srand, rand
 #include <iostream>       // cout
@@ -11,6 +11,7 @@
 #include <vector>		  // vector
 #include <map>			  // map
 #include <string>		  // string
+#include <mutex>
 
 using namespace std;
 
@@ -27,3 +28,4 @@ struct TrellisValue {
 void PrintBitSet(bitset<32> data, int count);
 int CalcHammingDist(uint32_t num1, uint32_t num2);
 uint32_t VectorMin(vector<uint32_t> vect);
+vector<vector<uint32_t>> MultiplyMetrics(vector<vector<uint32_t>> metA, vector<vector<uint32_t>> metB);

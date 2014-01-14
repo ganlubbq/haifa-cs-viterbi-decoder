@@ -41,3 +41,37 @@ uint32_t VectorMin(vector<uint32_t> vect)
 	}
 	return state;
 }
+
+vector<vector<uint32_t>> MultiplyMetrics(vector<vector<uint32_t>> metA, vector<vector<uint32_t>> metB)
+{
+	// Init the result metric and the temp minium used un calculations
+	vector<vector<uint32_t>> metC;
+	uint32_t minimum;
+
+	// Make sure matric size comply
+	if (metA.size() != metB.size())
+	{
+		cout << "Metrics Size not match!\n";
+		exit(1);
+	}
+
+	for (uint32_t i = 0; i < metA.size(); i++)
+	{
+		vector<uint32_t> cols;
+		for (uint32_t j = 0; j < metB.size(); j++)
+		{
+			minimum = 0xFFFFFFFF;
+			for (uint32_t k = 0; k < metA.size(); k++)
+			{
+				// avoid overflow
+				if (metA[i][k] == 0xFFFFFFFF || metB[k][j] == 0xFFFFFFFF)
+					minimum = min(minimum, 0xFFFFFFFF);
+				else
+					minimum = min(minimum, metA[i][k] + metB[k][j]);
+			}
+			cols.push_back(minimum);
+		}
+		metC.push_back(cols);
+	}
+	return metC;
+}
