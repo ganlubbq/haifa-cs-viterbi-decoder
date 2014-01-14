@@ -5,6 +5,7 @@
 */
 
 #include <iostream>
+#include <string>
 
 #include "viterbi_module.h"
 #include "automata.h"
@@ -13,11 +14,24 @@ using namespace std;
 
 int main() 
 {
-	viterbi_module viterbiTester = viterbi_module(10, 1, 3, 5);
+	int inputBits, outputBits, registersCount, parallelism;
+	string test;
+	cout << "Please Input start parameters for the Viterbi module:\n";
+	cout << "int outputBits\n";
+	cin >> outputBits;
+	cout << "int inputBits\n";
+	cin >> inputBits;
+	cout << "int registersCount\n";
+	cin >> registersCount;
+	cout << "int parallelism\n";
+	cin >> parallelism;
+
+	viterbi_module viterbiTester = viterbi_module(outputBits, inputBits, registersCount, parallelism);
 
 	viterbiTester.PrintProperties();
-
-	char *input = "01100101111010101010010100101010010101001010010101010101010100010101";
+	cout << "Please enter input in binary ONLY (010100010...):\n";
+	cin >> test;
+	char *input = (char*)test.c_str();
 	cout << "Input Data:\n" << input << "\n";
 	cout << "\n";
 
@@ -38,6 +52,11 @@ int main()
 	viterbiTester.DecodeSequential();
 
 	viterbiTester.DecodeParallel();
+
+	// Don't close window right away
+	std::cout << std::endl << "Press Enter key to Close...";
+	getchar();
+	getchar();
 
 	return 0;
 }
