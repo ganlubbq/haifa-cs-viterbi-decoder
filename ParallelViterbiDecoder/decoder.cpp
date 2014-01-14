@@ -77,7 +77,7 @@ uint32_t decoder::FindSourceState(vector<vector<uint32_t>> metB, vector<vector<u
 	uint32_t sourceState = 0;
 	uint32_t currMin = metB[0][0] + metM[0][finalState];
 
-	// Go over the overall paths from states in M to final State in M and find the min path
+	// Go over the overall paths from states in B to final State in M and find the min path
 	for (uint32_t k = 1; k < metB.size(); k++)
 	{
 		if (metB[0][k] + metM[k][finalState] < currMin)
@@ -238,7 +238,7 @@ void decoder::DecodeParallel(vector<uint32_t> bus, int parallelism)
 			end += diff;
 		}
 
-		thread* newThread = new thread(TraceBack, this, start, end, finalStates[subsetID]);
+		thread* newThread = new thread(TraceBack, this, start, end, finalStates[subsetID], bus);
 		_workers.push_back( newThread );
 
 		if (diff < sizeOfPart)
@@ -344,15 +344,15 @@ static void CalcMs(map<uint32_t, vector<vector<uint32_t>>> subsetMetrics, vector
 	}
 }
 
-static void TraceBack(decoder *_decoder, uint16_t start, uint16_t end, uint32_t finalState)
+static void TraceBack(decoder *decoder, uint16_t start, uint16_t end, uint32_t finalState, vector<uint32_t> bus)
 {
 	uint32_t sourceState;
 	for (uint32_t index = end; index > start; index--)
 	{
-		sourceState = _decoder->FindSourceState(_decoder->_accumulatedMetrics[index-1], _decoder->_accumulatedMetrics[index], finalState);
-		_decoder->_mtx->lock();
-		_decoder->_decodedData[index] = _decoder->DecodeInputBetweenStates(sourceState, finalState);
-		_decoder->_mtx->unlock();
+		sourceState = decoder->FindSourceState(decoder->_accumulatedMetrics[index-1], decoder->_adjacentMetrics[bus[index]], finalState);
+		decoder->_mtx->lock();
+		decoder->_decodedData[index] = decoder->DecodeInputBetweenStates(sourceState, finalState);
+		decoder->_mtx->unlock();
 		finalState = sourceState;
 	}
 }

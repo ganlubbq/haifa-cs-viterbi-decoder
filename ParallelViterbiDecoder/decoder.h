@@ -40,4 +40,4 @@ public:
 void CalcAccummlatedMetrices(decoder *_decoder, uint16_t subsetID, uint16_t start, uint16_t end, vector<uint32_t> bus);
 static void CalcBs(map<uint32_t, vector<vector<uint32_t>>> _results, vector<vector<vector<uint32_t>>> *Bs,  vector<uint32_t> *finalStates);
 static void CalcMs(map<uint32_t, vector<vector<uint32_t>>> _results, vector<vector<vector<uint32_t>>> *Ms);
-static void TraceBack(decoder *_decoder, uint16_t start, uint16_t end, uint32_t finalState);
+static void TraceBack(decoder *_decoder, uint16_t start, uint16_t end, uint32_t finalState, vector<uint32_t> bus);
