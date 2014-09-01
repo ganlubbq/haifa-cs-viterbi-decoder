@@ -11,6 +11,8 @@
 #include <vector>		  // vector
 #include <map>			  // map
 #include <string>		  // string
+#include <iostream>		  // file
+#include <fstream>
 #include <mutex>
 
 using namespace std;
@@ -26,6 +28,7 @@ struct TrellisValue {
 }typedef trellis;
 
 void PrintBitSet(bitset<32> data, int count);
+void PrintBitSetToFile(bitset<32> data, int count, ofstream *file);
 int CalcHammingDist(uint32_t num1, uint32_t num2);
 uint32_t VectorMin(vector<uint32_t> vect);
 vector<vector<uint32_t>> MultiplyMetrics(vector<vector<uint32_t>> metA, vector<vector<uint32_t>> metB);

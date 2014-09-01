@@ -35,6 +35,12 @@ int main()
 	cout << "Input Data:\n" << input << "\n";
 	cout << "\n";
 
+	// Print Input
+	ofstream f;
+	f.open("input.txt");
+	f << input;
+	f.close();
+
 	viterbiTester.Send(input);
 
 	viterbiTester.PrintEncodedData();
@@ -43,8 +49,9 @@ int main()
 	viterbiTester.PrintBus();
 	cout << "\n";
 
-	//viterbiTester.PrintAutomata();
-	//cout << "\n";
+	viterbiTester.PrintAutomata();
+	viterbiTester.PrintAutomataToFile();
+	cout << "\n";
 
 	//viterbiTester.PrintInverseAutomata();
 	//cout << "\n";

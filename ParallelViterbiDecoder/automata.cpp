@@ -127,6 +127,29 @@ void automata::PrintAutomata()
 	cout << "\n";
 }
 
+void automata::PrintAutomataToFile()
+{
+	ofstream myfile;
+	myfile.open ("automata.txt");
+	
+	for(std::map<uint32_t, vector<state>>::iterator iter = _automata.begin(); iter != _automata.end(); ++iter)
+	{
+		PrintBitSetToFile(bitset<32>(iter->first), _constrainLength, &myfile);
+		myfile << " -> \t";
+		for (uint16_t input = 0; input < iter->second.size(); input++)
+		{
+			PrintBitSetToFile(bitset<32>(input), _inputBits, &myfile);
+			myfile << ": ";
+			PrintBitSetToFile(bitset<32>(iter->second[input].state), _constrainLength, &myfile);
+			myfile << "/";
+			PrintBitSetToFile(bitset<32>(iter->second[input].output), _outputBits, &myfile);
+			myfile << "\t";
+		}
+		myfile << "\n";
+	}
+  myfile.close();
+}
+
 void automata::PrintInverseAutomata()
 {
 	cout << "Inverse Automata:\n";
