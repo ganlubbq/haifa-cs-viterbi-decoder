@@ -9,10 +9,36 @@
 
 #include "viterbi_module.h"
 #include "automata.h"
+#include "Verilog.h"
 
 using namespace std;
 
-int main() 
+void GenerateVerilog(int outputBits, int inputBits, int registersCount, int parallelism)
+{
+	folder = "C:\\test\\"; //doesn't work yet
+	(parallelism > 1)? isParallel = true : false;
+	inputLength = inputBits; // parameter n
+	seqLength = outputBits; // parameter k
+
+	Verilog::GenerateTrallisP();
+	Verilog::GenerateHammingDistance();
+	Verilog::GenerateViterbiDecoder();
+	Verilog::GenerateViterbiDecoderTester();
+	
+	Verilog::GenerateCorrect();
+
+	Verilog::GenerateTrallisSTester();
+	Verilog::GenerateQuadMinimum();
+	Verilog::GenerateTrallisS();
+	
+
+	Verilog::GenerateMinimumIndex();
+	
+	Verilog::GenerateMatrixMultiply();
+}
+
+
+int main()
 {
 	int inputBits, outputBits, registersCount, parallelism;
 	string test;
@@ -27,6 +53,7 @@ int main()
 	cin >> parallelism;
 
 	viterbi_module viterbiTester = viterbi_module(outputBits, inputBits, registersCount, parallelism);
+	GenerateVerilog(outputBits, inputBits, registersCount, parallelism);
 
 	viterbiTester.PrintProperties();
 	cout << "Please enter input in binary ONLY (010100010...):\n";

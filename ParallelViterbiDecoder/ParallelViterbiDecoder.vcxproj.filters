@@ -33,6 +33,9 @@
     <ClCompile Include="viterbi_module.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Verilog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="decoder.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="viterbi_module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Verilog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

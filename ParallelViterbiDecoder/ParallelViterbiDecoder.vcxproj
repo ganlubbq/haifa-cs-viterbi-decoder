@@ -68,7 +68,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -84,6 +84,7 @@
     <ClCompile Include="encoder.cpp" />
     <ClCompile Include="helper_functions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Verilog.cpp" />
     <ClCompile Include="viterbi_module.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +92,7 @@
     <ClInclude Include="decoder.h" />
     <ClInclude Include="encoder.h" />
     <ClInclude Include="helper_functions.h" />
+    <ClInclude Include="Verilog.h" />
     <ClInclude Include="viterbi_module.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
