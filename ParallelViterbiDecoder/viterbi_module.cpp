@@ -131,9 +131,9 @@ void viterbi_module::PrintAutomata()
 	_automata.PrintAutomata();
 }
 
-void viterbi_module::PrintAutomataToFile()
+void viterbi_module::PrintAutomataToFile(string folder)
 {
-	_automata.PrintAutomataToFile();
+	_automata.PrintAutomataToFile(folder);
 }
 
 void viterbi_module::PrintInverseAutomata()

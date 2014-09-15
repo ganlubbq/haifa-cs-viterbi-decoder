@@ -25,7 +25,7 @@ public:
 	void GenerateAutomata();
 	void GenerateInverseAutomata();
 	void PrintAutomata();
-	void PrintAutomataToFile();
+	void PrintAutomataToFile(string folder);
 	void PrintInverseAutomata();
 };
 

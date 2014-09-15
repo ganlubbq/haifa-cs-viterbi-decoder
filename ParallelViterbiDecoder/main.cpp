@@ -77,7 +77,7 @@ int main()
 	cout << "\n";
 
 	viterbiTester.PrintAutomata();
-	viterbiTester.PrintAutomataToFile();
+	viterbiTester.PrintAutomataToFile(folder);
 	cout << "\n";
 
 	//viterbiTester.PrintInverseAutomata();

@@ -33,7 +33,7 @@ public:
 	void PrintBus();
 	void PrintXORS();
 	void PrintAutomata();
-	void PrintAutomataToFile();
+	void PrintAutomataToFile(string folder);
 	void PrintInverseAutomata();
 };
 
