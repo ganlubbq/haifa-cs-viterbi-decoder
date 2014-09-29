@@ -106,7 +106,7 @@ void Verilog::GenerateHammingDistance()
 		Println(7,"	xor(sum[",S(i),"],item1[",S(i),"],item2[",S(i),"]);								");
 	//Println("	xor(sum[2],item1[2],item2[2]);														");
 	Println("	 																					");
-	Println("	always @(clseqLength)																		");
+	Println("	always @(clk)																		");
 	Println("	begin																				");
 	
 	char* bin = new char[seqLength+1];
@@ -185,7 +185,7 @@ void Verilog::GenerateTrallisPTester()
 	Println("																								");
 	Println("	// Instantiate the Unit Under Test (UUT)													");
 	Println("	TrallisP TRP (																				");
-	Println("		.clk(clseqLength), 																				");
+	Println("		.clk(clk), 																				");
 	Println("		.metaTable(metaTable), 																	");
 	Println("		.value(value), 																			");
 	Println("		.matrix(matrix)																			");
@@ -335,19 +335,19 @@ void Verilog::GenerateTrallisP()
 	Println("integer i,row;																												");
 
 	for (int j=0; j<seqLength;j++)
-//		Println(11,"HammingDistance HD",S(i)," (.clk(clseqLength),.item1(withValue1[",S(i*a + a-1),":",S(i*a),"]),.item2(value),.diff(diff1[",S(i*a + a-1),":",S(i*a),"]));");
+//		Println(11,"HammingDistance HD",S(i)," (.clk(clk),.item1(withValue1[",S(i*a + a-1),":",S(i*a),"]),.item2(value),.diff(diff1[",S(i*a + a-1),":",S(i*a),"]));");
 		for (int i=0; i<pow((double)2,seqLength);i++)
-			Println(15,"HammingDistance HD",S(i+pow((double)2,seqLength)*j)," (.clk(clseqLength),.item1(withValue",S(j+1),"[",S(i*seqLength + seqLength-1),":",S(i*seqLength),"]),.item2(value),.diff(diff",S(j+1),"[",S(i*seqLength + seqLength-1),":",S(i*seqLength),"]));");
+			Println(15,"HammingDistance HD",S(i+pow((double)2,seqLength)*j)," (.clk(clk),.item1(withValue",S(j+1),"[",S(i*seqLength + seqLength-1),":",S(i*seqLength),"]),.item2(value),.diff(diff",S(j+1),"[",S(i*seqLength + seqLength-1),":",S(i*seqLength),"]));");
 
 
-	/*Println("HammingDistance HD0 (.clk(clseqLength),.item1(withValue1[1:0]),.item2(value),.diff(diff1[1:0]));									");
-	Println("HammingDistance HD1 (.clk(clseqLength),.item1(withValue1[3:2]),.item2(value),.diff(diff1[3:2]));									");
-	Println("HammingDistance HD2 (.clk(clseqLength),.item1(withValue1[5:4]),.item2(value),.diff(diff1[5:4]));									");
-	Println("HammingDistance HD3 (.clk(clseqLength),.item1(withValue1[7:6]),.item2(value),.diff(diff1[7:6]));									");
-	Println("HammingDistance HD4 (.clk(clseqLength),.item1(withValue2[1:0]),.item2(value),.diff(diff2[1:0]));									");
-	Println("HammingDistance HD5 (.clk(clseqLength),.item1(withValue2[3:2]),.item2(value),.diff(diff2[3:2]));									");
-	Println("HammingDistance HD6 (.clk(clseqLength),.item1(withValue2[5:4]),.item2(value),.diff(diff2[5:4]));									");
-	Println("HammingDistance HD7 (.clk(clseqLength),.item1(withValue2[7:6]),.item2(value),.diff(diff2[7:6]));									");*/
+	/*Println("HammingDistance HD0 (.clk(clk),.item1(withValue1[1:0]),.item2(value),.diff(diff1[1:0]));									");
+	Println("HammingDistance HD1 (.clk(clk),.item1(withValue1[3:2]),.item2(value),.diff(diff1[3:2]));									");
+	Println("HammingDistance HD2 (.clk(clk),.item1(withValue1[5:4]),.item2(value),.diff(diff1[5:4]));									");
+	Println("HammingDistance HD3 (.clk(clk),.item1(withValue1[7:6]),.item2(value),.diff(diff1[7:6]));									");
+	Println("HammingDistance HD4 (.clk(clk),.item1(withValue2[1:0]),.item2(value),.diff(diff2[1:0]));									");
+	Println("HammingDistance HD5 (.clk(clk),.item1(withValue2[3:2]),.item2(value),.diff(diff2[3:2]));									");
+	Println("HammingDistance HD6 (.clk(clk),.item1(withValue2[5:4]),.item2(value),.diff(diff2[5:4]));									");
+	Println("HammingDistance HD7 (.clk(clk),.item1(withValue2[7:6]),.item2(value),.diff(diff2[7:6]));									");*/
 	Println("																															");
 	Println("																															");
 	for (int j=0; j<seqLength; j++)
@@ -390,7 +390,7 @@ void Verilog::GenerateTrallisP()
 	Println("																															");*/
 	NewLine();
 	Println("																															");
-	Println("	always@(clseqLength) 																											");
+	Println("	always@(clk) 																											");
 	Println("		begin  																												");
 	Println(3,"			for (row = 0; row < ",S(pow((double)2,seqLength)),"; row = row + 1)																	");
 	Println("				begin																										");
@@ -446,7 +446,7 @@ void Verilog::GenerateCorrectTester()
 	Println("																							");
 	Println("	// Instantiate the Unit Under Test (UUT)												");
 	Println("	Correct uut (																			");
-	Println("		.clk(clseqLength), 																			");
+	Println("		.clk(clk), 																			");
 	Println("		.metaTable(metaTable), 																");
 	Println("		.fromIndex(fromIndex), 																");
 	Println("		.to(to), 																			");
@@ -595,10 +595,10 @@ void Verilog::GenerateCorrect()
 	Println(11,"module Correct(input clk, input wire[",S(seqLength*(seqLength*2)*pow((double)2,seqLength)-1),":0] metaTable, input wire[",S(seqLength-1),":0] fromIndex, input wire[",S(10*pow((double)2,seqLength-1)-1),":0] to, output reg[",S(seqLength-1),":0] nextIndex, output reg[",S(seqLength-1),":0] rightValue);	");		
 	Println("																																														");
 	Println(3,"wire[",S(seqLength-1),":0] toIndex, correctValue; 																																						");
-	Println("NextIndex Next(.clk(clseqLength), .metaTable(metaTable), .fromIndex(fromIndex), .to(to), .nextIndex(toIndex));																					");
-	Println("Correction Correct(.clk(clseqLength), .metaTable(metaTable), .toIndex(toIndex), .fromIndex(fromIndex), .rightValue(correctValue));																");
+	Println("NextIndex Next(.clk(clk), .metaTable(metaTable), .fromIndex(fromIndex), .to(to), .nextIndex(toIndex));																					");
+	Println("Correction Correct(.clk(clk), .metaTable(metaTable), .toIndex(toIndex), .fromIndex(fromIndex), .rightValue(correctValue));																");
 	Println("																																														");
-	Println("always @(clseqLength)																																											");
+	Println("always @(clk)																																											");
 	Println("	begin																																												");
 	Println("		rightValue <= correctValue;																																						");
 	Println("		nextIndex <= toIndex;																																							");
@@ -637,9 +637,9 @@ void Verilog::GenerateCorrect()
 		Println(3,"wire[4:0] min",S(i),";");
 		Println(9,"Minimum M",S(i),"(.item1(min",S(i-1),"), .item2(item",S(i+1),"), .min(min",S(i),"));		");
 	}
-//	Println(5,"Minimum M1(.clk(clseqLength), .item1(item",S(seqLength/2),"), .item2(item",S(seqLength/2+1),"), .min(min));		");
+//	Println(5,"Minimum M1(.clk(clk), .item1(item",S(seqLength/2),"), .item2(item",S(seqLength/2+1),"), .min(min));		");
 
-	Println("always @(clseqLength)																																											");
+	Println("always @(clk)																																											");
 	Println("	begin																																												");
 	for (int i=1; i<seqLength; i++)
 		Println(3,"		isSet",S(i)," = 0;																																										");
@@ -680,7 +680,7 @@ void Verilog::GenerateCorrect()
 	Println("																																														");
 	Println(9,"module Correction(input clk, input wire[",S(seqLength*(seqLength*2)*pow((double)2,seqLength)-1),":0] metaTable, input wire[",S(seqLength-1),":0] toIndex, input wire[",S(seqLength-1),":0] fromIndex, output reg[",S(seqLength-1),":0] rightValue);												");
 	Println("																																														");
-	Println("always @(clseqLength)																																											");
+	Println("always @(clk)																																											");
 	Println("	begin																																												");
 	Println("		case (toIndex)																																									");
 	
@@ -693,7 +693,7 @@ void Verilog::GenerateCorrect()
 		for (int i=strlen(bin); i<seqLength; i++)
 			Print("0");
 		Println(2,bin,":");
-//		for (int r=0; r<k-1; r++)
+//		for (int r=0; r<seqLength-1; r++)
 //		{
 			for (int i=0; i<seqLength-1; i++)
 			{
@@ -812,7 +812,7 @@ void Verilog::GenerateViterbiDecoderTester()
 	Println("																												");
 	Println("	// Instantiate the Unit Under Test (UUT)																	");
 	Println("	ViterbiDecoder VD (																							");
-	Println("		.clk(clseqLength),																								");
+	Println("		.clk(clk),																								");
 	Println("		.metaTable(metaTable), 																					");
 	Println("		.wrongValues(wrongValues), 																				");
 	Println("		.correctValues(correctValues)																			");
@@ -868,16 +868,16 @@ void Verilog::GenerateViterbiDecoder()
 	// Trallis parallel or secuencial.
 	if (isParallel)
 		for (int i=0; i<inputLength/seqLength; i++) 
-			Println(9,"TrallisP TR",S(i+1)," (.clk(clseqLength), .metaTable(metaTable), .value(wrongValues[",S(i*seqLength+(seqLength-1)),":",S(i*seqLength),"]), .matrix(matrix",S(i+1),"));");
+			Println(9,"TrallisP TR",S(i+1)," (.clk(clk), .metaTable(metaTable), .value(wrongValues[",S(i*seqLength+(seqLength-1)),":",S(i*seqLength),"]), .matrix(matrix",S(i+1),"));");
 	else
 	{
-		Print(5,"TrallisS TR1 (.clk(clseqLength), .metaTable(metaTable), .value(wrongValues[",S(seqLength-1),":0]), .in(",S(5*pow((double)2,seqLength)),"'b");
+		Print(5,"TrallisS TR1 (.clk(clk), .metaTable(metaTable), .value(wrongValues[",S(seqLength-1),":0]), .in(",S(5*pow((double)2,seqLength)),"'b");
 		for (int i=5; i<5*pow((double)2,seqLength); i++)
 			Print("x");
 		Println("00000), .matrix(matrix1));");
 		
 		for (int i=1; i<inputLength/seqLength; i++) 
-			Println(13,"TrallisS TR",S(i+1)," (.clk(clseqLength), .metaTable(metaTable), .value(wrongValues[",S(i*seqLength+(seqLength-1)),":",S(i*seqLength),"]), .in(matrix",S(i),"[",S(5*pow((double)2,seqLength)-1),":0]), .matrix(matrix",S(i+1),"));");
+			Println(13,"TrallisS TR",S(i+1)," (.clk(clk), .metaTable(metaTable), .value(wrongValues[",S(i*seqLength+(seqLength-1)),":",S(i*seqLength),"]), .in(matrix",S(i),"[",S(5*pow((double)2,seqLength)-1),":0]), .matrix(matrix",S(i+1),"));");
 	}
 	
 	NewLine();
@@ -897,17 +897,17 @@ void Verilog::GenerateViterbiDecoder()
 		for (int i=1; i<=(inputLength/seqLength)/2; i++) 
 		{
 			Println(7,"wire [",S(5*pow((double)2,2*seqLength)-1),":0] product",S(2*i-1),"_",S(2*i),";"); 
-			Println(13,"MatrixMultiply MM",S(2*i-1),"_",S(2*i)," (.clk(clseqLength), .matrix1(matrix",S(2*i-1),"), .matrix2(matrix",S(2*i),"), .product(product",S(2*i-1),"_",S(2*i),"));");
+			Println(13,"MatrixMultiply MM",S(2*i-1),"_",S(2*i)," (.clk(clk), .matrix1(matrix",S(2*i-1),"), .matrix2(matrix",S(2*i),"), .product(product",S(2*i-1),"_",S(2*i),"));");
 		}
 		NewLine();
 		for (int i=3; i<=inputLength/seqLength; i=i+2) 
 		{
 			Println(5,"wire [",S(5*pow((double)2,2*seqLength)-1),":0] product1_",S(i),";"); 
-			Println(9,"MatrixMultiply MM1_",S(i)," (.clk(clseqLength), .matrix1(product1_",S(i-1),"), .matrix2(matrix",S(i),"), .product(product1_",S(i),"));");
+			Println(9,"MatrixMultiply MM1_",S(i)," (.clk(clk), .matrix1(product1_",S(i-1),"), .matrix2(matrix",S(i),"), .product(product1_",S(i),"));");
 			if (i+1 <= inputLength/seqLength)
 			{
 				Println(5,"wire [",S(5*pow((double)2,2*seqLength)-1),":0] product1_",S(i+1),";"); 
-				Println(11,"MatrixMultiply MM1_",S(i+1)," (.clk(clseqLength), .matrix1(product1_",S(i-1),"), .matrix2(product",S(i),"_",S(i+1),"), .product(product1_",S(i+1),"));");
+				Println(11,"MatrixMultiply MM1_",S(i+1)," (.clk(clk), .matrix1(product1_",S(i-1),"), .matrix2(product",S(i),"_",S(i+1),"), .product(product1_",S(i+1),"));");
 			}
 			NewLine();
 		}
@@ -931,14 +931,38 @@ void Verilog::GenerateViterbiDecoder()
 	for (int i=2; i<=inputLength/seqLength; i++) 
 		Print(2,", indexTo",S(i));
 	Println(";");
-	for (int i=2; i<=inputLength/seqLength; i++) 
-		Println(5,"assign indexFrom",S(i)," = indexTo",S(i-1),";");
+	if (!isParallel)
+		for (int i=2; i<=inputLength/seqLength; i++) 
+			Println(5,"assign indexFrom",S(i)," = indexTo",S(i-1),";");
 	NewLine();
 
 
-	
-	
-	Println(5,"MinimumIndex MI (.clk(clseqLength), .vector(product1_",S(inputLength/seqLength),"[",S(5*pow((double)2,seqLength)-1),":0]), .index(indexFrom1));																				");
+	Println(5,"MinimumIndex MI (.clk(clk), .vector(product1_",S(inputLength/seqLength),"[",S(5*pow((double)2,seqLength)-1),":0]), .index(indexFrom1));																				");
+
+	if (isParallel)
+	{
+		Print(3,"wire[",S(5*pow((double)2,seqLength)-1),":0] revertP2");
+		for (int i=3; i<=inputLength/seqLength; i++) 
+			Print(2,", revertP",S(i));
+		Println(";");
+
+		for (int j=2; j<inputLength/seqLength; j++)
+		{
+			for (int i=1; i<=pow((double)2,seqLength); i++) 
+			{
+				Println(19,"assign revertP",S(j),"[",S(5*i-1),":",S(5*(i-1)),"] = product1_",S(inputLength/seqLength-j+1),"[",S(5*i-1),":",S(5*(i-1)),"] + product1_",S(inputLength/seqLength-j+2),"[",S((5*pow((double)2,seqLength))*(i-1)+4),":",S((5*pow((double)2,seqLength))*(i-1)),"];															");
+			}
+			NewLine();
+		}
+		for (int i=1; i<=pow((double)2,seqLength); i++) 
+		{
+			Println(15,"assign revertP",S(inputLength/seqLength),"[",S(5*i-1),":",S(5*(i-1)),"] = matrix1[",S(5*i-1),":",S(5*(i-1)),"] + product1_2[",S((5*pow((double)2,seqLength))*(i-1)+4),":",S((5*pow((double)2,seqLength))*(i-1)),"];															");
+		}
+		NewLine();
+		for (int i=2; i<=inputLength/seqLength; i++) 
+			Println(9,"MinimumIndex MI",S(i)," (.clk(clk), .vector(revertP",S(i),"[",S(5*pow((double)2,seqLength)-1),":0]), .index(indexFrom",S(i),"));																				");
+	}
+		
 	NewLine();
 
 	Print(3,"wire[",S(seqLength-1),":0] rightValue1");
@@ -950,22 +974,22 @@ void Verilog::GenerateViterbiDecoder()
 
 	for (int i=1; i<inputLength/seqLength-1; i++) 
 	{
-		Println(13,"Correct C",S(i)," (.clk(clseqLength), .metaTable(metaTable), .fromIndex(indexFrom",S(i),"), .to(product1_",S(inputLength/seqLength-i),"[",S(5*pow((double)2,seqLength)-1),":0]), .nextIndex(indexTo",S(i),"), .rightValue(rightValue",S(i),"));");
+		Println(13,"Correct C",S(i)," (.clk(clk), .metaTable(metaTable), .fromIndex(indexFrom",S(i),"), .to(product1_",S(inputLength/seqLength-i),"[",S(5*pow((double)2,seqLength)-1),":0]), .nextIndex(indexTo",S(i),"), .rightValue(rightValue",S(i),"));");
 		remain = i;
 	}
 	if (inputLength/seqLength >= 2)
 	{
 		remain++;
-		Println(13,"Correct C",S(remain)," (.clk(clseqLength), .metaTable(metaTable), .fromIndex(indexFrom",S(remain),"), .to(matrix",S(1),"[",S(5*pow((double)2,seqLength)-1),":0]), .nextIndex(indexTo",S(remain),"), .rightValue(rightValue",S(remain),"));");
+		Println(13,"Correct C",S(remain)," (.clk(clk), .metaTable(metaTable), .fromIndex(indexFrom",S(remain),"), .to(matrix",S(1),"[",S(5*pow((double)2,seqLength)-1),":0]), .nextIndex(indexTo",S(remain),"), .rightValue(rightValue",S(remain),"));");
 	}
 	remain++;
-	Print(7,"Correct C",S(remain)," (.clk(clseqLength), .metaTable(metaTable), .fromIndex(indexFrom",S(remain),"), .to(",S(5*pow((double)2,seqLength)),"'b");
+	Print(7,"Correct C",S(remain)," (.clk(clk), .metaTable(metaTable), .fromIndex(indexFrom",S(remain),"), .to(",S(5*pow((double)2,seqLength)),"'b");
 	for (int i=5; i<5*pow((double)2,seqLength); i++)
 		Print("x");
 	Println(5,"00000), .nextIndex(indexTo",S(remain),"), .rightValue(rightValue",S(remain),"));");
 	NewLine();
 	NewLine();
-	Println("	always@(clseqLength) 																																			");
+	Println("	always@(clk) 																																			");
 	Println("	begin  																																					");
 	
 	for (int i=0; i<inputLength/seqLength; i++) 
@@ -996,7 +1020,7 @@ void Verilog::GenerateTrallisS()
 	for (int i=1; i<= pow((double)2,seqLength); i++)
 		Println(3,"wire [4:0] element",S(i),";																																														");
 	Println("integer row;																																																			");
-	Println("TrallisP TR1 (.clk(clseqLength), .metaTable(metaTable), .value(value), .matrix(trMatrix));																																		");
+	Println("TrallisP TR1 (.clk(clk), .metaTable(metaTable), .value(value), .matrix(trMatrix));																																		");
 	Println("																																																						");
 	for (int i=0; i< pow((double)2,seqLength); i++)
 	{
@@ -1015,7 +1039,7 @@ void Verilog::GenerateTrallisS()
 			Println(11,"assign to",S(i+1),"[",S(seqLength*j+(seqLength-1)),":",S(seqLength*j),"] = metaTable[",S(j*(seqLength*seqLength*2)+i*2*seqLength+(seqLength-1))," : ",S(j*(seqLength*seqLength*2)+i*2*seqLength),"];																						");
 	Println("																																																						");
 	Println("																																																						");
-	Println("	always@(clseqLength) 																																																		");
+	Println("	always@(clk) 																																																		");
 	Println("		begin  	 																																																		");
 	Println(3,"			for (row = 0; row < ",S(pow((double)2,seqLength)),"; row = row + 1)																																					");
 	Println("					begin																																																");
@@ -1055,7 +1079,7 @@ void Verilog::GenerateTrallisSTester()
 	Println("																								");
 	Println("	// Instantiate the Unit Under Test (UUT)													");
 	Println("	TrallisS TRS (																				");
-	Println("		.clk(clseqLength), 																				");
+	Println("		.clk(clk), 																				");
 	Println("		.metaTable(metaTable), 																	");
 	Println("		.value(value), 																			");
 	Println("		.in(in), 																				");
@@ -1198,7 +1222,7 @@ void Verilog::GenerateMinimumIndex()
 	}
 	Println(", .min(min));");			
 	Println("																																						");
-	Println("	always@(clseqLength) 																																		");
+	Println("	always@(clk) 																																		");
 	Println("		begin  																																			");
 	Println("			if (vector[4:0] === min)																													");
 	Print(3,"				index = ",S(seqLength),"'b");
@@ -1258,7 +1282,7 @@ void Verilog::GenerateMatrixMultiply()
 	Println("																																																	");
 	Println("																																																	");
 	Println("integer row, col;																																													");
-	Println("	always@(clseqLength) 																																													");
+	Println("	always@(clk) 																																													");
 	Println("	begin  																																															");
 
 	Println(3,"		for (row = 0; row < ",S(pow((double)2,seqLength)),"; row = row + 1)																																						");
