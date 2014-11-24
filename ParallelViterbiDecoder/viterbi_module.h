@@ -9,6 +9,7 @@
 #include "encoder.h"
 #include "automata.h"
 #include "decoder.h"
+#include "Verilog.h"
 
 class viterbi_module
 {

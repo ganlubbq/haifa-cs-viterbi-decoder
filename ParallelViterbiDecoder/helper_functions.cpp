@@ -52,6 +52,13 @@ uint32_t VectorMin(vector<uint32_t> vect)
 	return state;
 }
 
+uint32_t min(uint32_t num1, uint32_t num2)
+{
+	if (num1 < num2)
+		return num1;
+	return num2;
+}
+
 vector<vector<uint32_t>> MultiplyMetrics(vector<vector<uint32_t>> metA, vector<vector<uint32_t>> metB)
 {
 	// Init the result metric and the temp minium used un calculations
@@ -85,5 +92,7 @@ vector<vector<uint32_t>> MultiplyMetrics(vector<vector<uint32_t>> metA, vector<v
 	}
 	return metC;
 }
+
+
 
 void printAutoamta();

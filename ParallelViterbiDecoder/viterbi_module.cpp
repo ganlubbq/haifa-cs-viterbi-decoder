@@ -94,7 +94,9 @@ void viterbi_module::PrintProperties()
 }
 
 void viterbi_module::PrintEncodedData()
-{
+{	
+
+
 	// Print out the encoded data in blocks (each for one input symbol)
 	cout << "Encoded Data:\n";
 	for (uint16_t i = 0; i < _encodedData.size(); i++)
@@ -107,13 +109,20 @@ void viterbi_module::PrintEncodedData()
 
 void viterbi_module::PrintBus()
 {
+	// Print Input
+	ofstream f;
+	f.open(Verilog::folder + "valuesInput.txt");
+
 	cout << "Bus Data:\n";
 	for (uint16_t i = 0; i < _bus.size(); i++)
 	{
 		PrintBitSet(_bus[i], _outputBits);
+		PrintBitSetToFile(_encodedData[i], _outputBits, &f);
 		cout << " ";
 	}
 	cout << "\n";
+	
+	f.close();
 }
 
 void viterbi_module::PrintXORS()

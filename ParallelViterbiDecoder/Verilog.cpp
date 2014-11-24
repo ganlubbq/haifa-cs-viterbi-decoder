@@ -5,22 +5,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-
+string Verilog::folder = "";
+string Verilog::quadMinimum = "";
+string Verilog::viterbiDecoderTester = "";
+string Verilog::viterbiDecoder = "";
+string Verilog::trallisP = "";
+string Verilog::trallisPTester = "";
+string Verilog::hammingDistance = "";
+string Verilog::correctTester = "";
+string Verilog::correct = "";
+string Verilog::trallisS = "";
+string Verilog::trallisSTester = "";
+string Verilog::minimumIndex = "";
+string Verilog::matrixMultiply = "";
+bool Verilog::isParallel = true;
+int Verilog::inputLength = 6; //input length in bits.
+int Verilog::seqLength = 2; //sequence length in bits.
 
 static ofstream verilogFile;
-const string Verilog::quadMinimum = folder + "quadMin.v";
-const string Verilog::viterbiDecoderTester = folder + "viterbiDecoderTester.v";
-const string Verilog::viterbiDecoder = folder + "viterbiDecoder.v";
-const string Verilog::trallisP = folder + "Trallies.v";
-const string Verilog::trallisPTester = folder + "TrallisTester.v";
-const string Verilog::hammingDistance = folder + "HammingDistance.v";
-const string Verilog::correctTester = folder + "CorrectionTester.v";
-const string Verilog::correct = folder + "Correct.v";
-const string Verilog::trallisS = folder + "TralliesS.v";
-const string Verilog::trallisSTester = folder + "TralliesSTester.v";
-const string Verilog::minimumIndex = folder + "MinimumIndex.v";
-const string Verilog::matrixMultiply = folder + "matrixMultiply.v";
 
 Verilog::Verilog(void)
 {
@@ -90,6 +92,7 @@ int count_ones(string s) {
 
   return count;
 }
+
 void Verilog::GenerateHammingDistance()
 {
 	verilogFile.open (hammingDistance);
@@ -848,7 +851,7 @@ void Verilog::GenerateViterbiDecoderTester()
 	verilogFile.close();
 }
 
-void Verilog::GenerateViterbiDecoder()
+void Verilog::GenerateViterbiDecoder(int parallelism)
 {
 	verilogFile.open (viterbiDecoder);
 
@@ -863,9 +866,6 @@ void Verilog::GenerateViterbiDecoder()
 		else
 			Println(5,"wire [",S(5*pow((double)2,seqLength)-1),":0] matrix",S(i),";");
 		
-	//for (int i=2; i<=inputLength/2; i++) 
-	//	Println(3,"wire [79:0] product1_",S(i),";"); 
-	// Trallis parallel or secuencial.
 	if (isParallel)
 		for (int i=0; i<inputLength/seqLength; i++) 
 			Println(9,"TrallisP TR",S(i+1)," (.clk(clk), .metaTable(metaTable), .value(wrongValues[",S(i*seqLength+(seqLength-1)),":",S(i*seqLength),"]), .matrix(matrix",S(i+1),"));");
@@ -881,11 +881,6 @@ void Verilog::GenerateViterbiDecoder()
 	}
 	
 	NewLine();
-	//if (inputLength/seqLength==1)
-	//{
-	//	Println(3,"wire [",S(5*pow((double)2,2*seqLength)-1),":0] product1_1;"); 
-	//	Println("assign product1_1 = matrix1;"); 
-	//}
 		
 	if (isParallel)
 	{
@@ -894,23 +889,48 @@ void Verilog::GenerateViterbiDecoder()
 			Println(3,"wire [",S(5*pow((double)2,2*seqLength)-1),":0] product1_1;"); 
 			Println("assign product1_1 = matrix1;"); 
 		}
+		// matrix1 * matrix2
 		for (int i=1; i<=(inputLength/seqLength)/2; i++) 
 		{
 			Println(7,"wire [",S(5*pow((double)2,2*seqLength)-1),":0] product",S(2*i-1),"_",S(2*i),";"); 
 			Println(13,"MatrixMultiply MM",S(2*i-1),"_",S(2*i)," (.clk(clk), .matrix1(matrix",S(2*i-1),"), .matrix2(matrix",S(2*i),"), .product(product",S(2*i-1),"_",S(2*i),"));");
 		}
 		NewLine();
-		for (int i=3; i<=inputLength/seqLength; i=i+2) 
+		
+		int p = parallelism;
+		if (p > inputLength / 2)
+			p = inputLength / 2;
+		if (inputLength / 2 % p != 0)
 		{
-			Println(5,"wire [",S(5*pow((double)2,2*seqLength)-1),":0] product1_",S(i),";"); 
-			Println(9,"MatrixMultiply MM1_",S(i)," (.clk(clk), .matrix1(product1_",S(i-1),"), .matrix2(matrix",S(i),"), .product(product1_",S(i),"));");
-			if (i+1 <= inputLength/seqLength)
-			{
-				Println(5,"wire [",S(5*pow((double)2,2*seqLength)-1),":0] product1_",S(i+1),";"); 
-				Println(11,"MatrixMultiply MM1_",S(i+1)," (.clk(clk), .matrix1(product1_",S(i-1),"), .matrix2(product",S(i),"_",S(i+1),"), .product(product1_",S(i+1),"));");
-			}
-			NewLine();
+			p = inputLength / 2;
 		}
+		//cout << "By range:\n";
+
+		for (int i = 0; i < p; i++)
+		{
+			int from = (inputLength / p)*i;
+			int to = from + (inputLength / p);
+			CreateMultiplyByRange(from + 1, to);
+		}
+
+
+		for (int i = 1; i < p; i++)
+		{
+			MultiplyProduct(1, (inputLength / p)*i, (inputLength / p)*i + 1, (inputLength / p)*(i + 1));
+		}
+
+		//cout << "\n\nOne by one:\n";
+		for (int i = 0; i < p; i++)
+		{
+			int from = (inputLength / p)*i;
+			int to = from + (inputLength / p);
+			if (i == 0)
+				CreateMultiplyOneByOne(2, to);
+			else
+				CreateMultiplyOneByOne(from, to);
+		}
+
+
 	}
 	else
 	{
@@ -1301,3 +1321,34 @@ void Verilog::GenerateMatrixMultiply()
 
 	verilogFile.close();
 }
+
+void Verilog::MultiplyMatrix(int m1_from, int m1_to, int m2)
+{
+	Println(7, "wire [", S(5 * pow((double)2, 2 * seqLength) - 1), ":0] product", S(m1_from), "_", S(m2), ";");
+	Println(15, "MatrixMultiply MM", S(m1_from), "_", S(m2), " (.clk(clk), .matrix1(product", S(m1_from), "_", S(m1_to), "), .matrix2(matrix", S(m2), "), .product(product", S(m1_from), "_", S(m2), "));");
+}
+
+void Verilog::MultiplyProduct(int m1_from, int m1_to, int m2_from, int m2_to)
+{
+	Println(7, "wire [", S(5 * pow((double)2, 2 * seqLength) - 1), ":0] product", S(m1_from), "_", S(m2_to), ";");
+	Println(17, "MatrixMultiply MM", S(m1_from), "_", S(m2_to), " (.clk(clk), .matrix1(product", S(m1_from), "_", S(m1_to), "), .matrix2(product", S(m2_from), "_", S(m2_to), "), .product(product", S(m1_from), "_", S(m2_to), "));");
+}
+
+void Verilog::CreateMultiplyOneByOne(int from, int to)
+{
+	for (int i = from; i < to - 1; i++)
+	{
+		if (from == 2 && (i + 1) % 2 == 0)
+		{
+			continue;
+		}
+		MultiplyMatrix(1, i, i + 1);
+	}
+}
+
+void Verilog::CreateMultiplyByRange(int from, int to)
+{
+	for (int i = from; i < to - 2; i = i + 2)
+		MultiplyProduct(from, i + 1, i + 2, i + 3);
+}
+

@@ -15,14 +15,28 @@ using namespace std;
 
 void GenerateVerilog(int outputBits, int inputBits, int registersCount, int parallelism)
 {
-	folder = "C:\\test\\"; //doesn't work yet
-	(parallelism > 1)? isParallel = true : false;
-	inputLength = inputBits; // parameter n
-	seqLength = outputBits; // parameter k
+	//if (parallelism > 1) Verilog::isParallel = true;
+	//else Verilog::isParallel = false;
+	
+	Verilog::inputLength = inputBits; // parameter n
+	Verilog::seqLength = outputBits; // parameter k
+
+	Verilog::quadMinimum = Verilog::folder + "quadMin.v";
+	Verilog::viterbiDecoderTester = Verilog::folder + "viterbiDecoderTester.v";
+	Verilog::viterbiDecoder = Verilog::folder + "viterbiDecoder.v";
+	Verilog::trallisP = Verilog::folder + "Trallies.v";
+	Verilog::trallisPTester = Verilog::folder + "TrallisTester.v";
+	Verilog::hammingDistance = Verilog::folder + "HammingDistance.v";
+	Verilog::correctTester = Verilog::folder + "CorrectionTester.v";
+	Verilog::correct = Verilog::folder + "Correct.v";
+	Verilog::trallisS = Verilog::folder + "TralliesS.v";
+	Verilog::trallisSTester = Verilog::folder + "TralliesSTester.v";
+	Verilog::minimumIndex = Verilog::folder + "MinimumIndex.v";
+	Verilog::matrixMultiply = Verilog::folder + "matrixMultiply.v";
 
 	Verilog::GenerateTrallisP();
 	Verilog::GenerateHammingDistance();
-	Verilog::GenerateViterbiDecoder();
+	Verilog::GenerateViterbiDecoder(parallelism);
 	Verilog::GenerateViterbiDecoderTester();
 	
 	Verilog::GenerateCorrect();
@@ -40,8 +54,14 @@ void GenerateVerilog(int outputBits, int inputBits, int registersCount, int para
 
 int main()
 {
-	int inputBits, outputBits, registersCount, parallelism;
+
+	int inputBits, outputBits, registersCount, parallelism, inputLength , sequenceLength = 2;
 	string test;
+	cout << "please enter verilog files output folder:\n";
+	cin >> Verilog::folder;
+
+	//Verilog::folder = "C:\\Users\\galk\\Desktop\\ViterbiProject\\";
+
 	cout << "Please Input start parameters for the Viterbi module:\n";
 	cout << "int outputBits\n";
 	cin >> outputBits;
@@ -51,9 +71,9 @@ int main()
 	cin >> registersCount;
 	cout << "int parallelism\n";
 	cin >> parallelism;
+	cout << "\n";
 
 	viterbi_module viterbiTester = viterbi_module(outputBits, inputBits, registersCount, parallelism);
-	GenerateVerilog(outputBits, inputBits, registersCount, parallelism);
 
 	viterbiTester.PrintProperties();
 	cout << "Please enter input in binary ONLY (010100010...):\n";
@@ -62,11 +82,17 @@ int main()
 	cout << "Input Data:\n" << input << "\n";
 	cout << "\n";
 
-	// Print Input
-	ofstream f;
-	f.open("input.txt");
-	f << input;
-	f.close();
+	// Create the verilog files
+	cout << "Please insert length of input to decode in verilog (>6)\n";
+	cin >> inputLength;
+	cout << "Please insert length of sequence length\n";
+	cin >> sequenceLength;
+
+	cout << "Generating Verilog Files...";
+	GenerateVerilog(sequenceLength, inputLength, registersCount, parallelism);
+	cout << "Done\n\n";
+
+	cout << "****The following output is pure c++ implementation, verliog files are generated to " << Verilog::folder << "****\n\n";
 
 	viterbiTester.Send(input);
 
@@ -77,7 +103,7 @@ int main()
 	cout << "\n";
 
 	viterbiTester.PrintAutomata();
-	viterbiTester.PrintAutomataToFile(folder);
+	viterbiTester.PrintAutomataToFile(Verilog::folder);
 	cout << "\n";
 
 	//viterbiTester.PrintInverseAutomata();
