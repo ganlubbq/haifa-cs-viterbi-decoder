@@ -15,8 +15,8 @@ using namespace std;
 
 void GenerateVerilog(int outputBits, int inputBits, int registersCount, int parallelism)
 {
-	//if (parallelism > 1) Verilog::isParallel = true;
-	//else Verilog::isParallel = false;
+	if (parallelism > 1) Verilog::isParallel = true;
+	else Verilog::isParallel = false;
 	
 	Verilog::inputLength = inputBits; // parameter n
 	Verilog::seqLength = outputBits; // parameter k

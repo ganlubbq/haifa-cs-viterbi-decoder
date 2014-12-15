@@ -18,7 +18,7 @@ string Verilog::trallisS = "";
 string Verilog::trallisSTester = "";
 string Verilog::minimumIndex = "";
 string Verilog::matrixMultiply = "";
-bool Verilog::isParallel = true;
+bool Verilog::isParallel = false;
 int Verilog::inputLength = 6; //input length in bits.
 int Verilog::seqLength = 2; //sequence length in bits.
 
@@ -898,37 +898,49 @@ void Verilog::GenerateViterbiDecoder(int parallelism)
 		NewLine();
 		
 		int p = parallelism;
-		if (p > inputLength / 2)
-			p = inputLength / 2;
-		if (inputLength / 2 % p != 0)
-		{
-			p = inputLength / 2;
-		}
+		if (p > (inputLength / seqLength) / 2)
+			p = (inputLength / seqLength) / 2;
+		//********This should be removed
+		//if ((inputLength / seqLength) / 2 % p != 0)
+		//{
+		//	p = (inputLength / seqLength);
+		//}
 		//cout << "By range:\n";
+		//********
 
 		for (int i = 0; i < p; i++)
 		{
-			int from = (inputLength / p)*i;
-			int to = from + (inputLength / p);
+			int from = ((inputLength / seqLength) / p)*i;
+			int to = from + ((inputLength / seqLength) / p);
 			CreateMultiplyByRange(from + 1, to);
 		}
 
 
 		for (int i = 1; i < p; i++)
 		{
-			MultiplyProduct(1, (inputLength / p)*i, (inputLength / p)*i + 1, (inputLength / p)*(i + 1));
+			MultiplyProduct(1, ((inputLength / seqLength) / p)*i, ((inputLength / seqLength) / p)*i + 1, ((inputLength / seqLength) / p)*(i + 1));
 		}
 
 		//cout << "\n\nOne by one:\n";
+		//********This should be updated.
+		int to;
 		for (int i = 0; i < p; i++)
 		{
-			int from = (inputLength / p)*i;
-			int to = from + (inputLength / p);
+			int from = ((inputLength / seqLength) / p)*i;
+			to = from + ((inputLength / seqLength) / p);
 			if (i == 0)
 				CreateMultiplyOneByOne(2, to);
 			else
 				CreateMultiplyOneByOne(from, to);
+			if (to + 1 == (inputLength / seqLength))
+			{
+				MultiplyMatrix(1, to, to + 1);
+				to = to + 1;
+			}
 		}
+		if (to < (inputLength / seqLength))
+			CreateMultiplyOneByOne(to, inputLength/seqLength + 1);
+		//********
 
 
 	}
@@ -1348,7 +1360,14 @@ void Verilog::CreateMultiplyOneByOne(int from, int to)
 
 void Verilog::CreateMultiplyByRange(int from, int to)
 {
-	for (int i = from; i < to - 2; i = i + 2)
-		MultiplyProduct(from, i + 1, i + 2, i + 3);
+	int i = from;
+	if (i != to - 2)
+	{
+		for (; i < to - 2; i = i + 2)
+			MultiplyProduct(from, i + 1, i + 2, i + 3);
+		if (i == to - 2)
+			MultiplyMatrix(from, i + 1, i + 2);
+	}
+	else
+		MultiplyMatrix(from, from + 1, from + 2);
 }
-
